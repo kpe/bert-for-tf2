@@ -33,7 +33,7 @@ setup(name='bert-for-tf2',
       python_requires=">=3.4",
       classifiers=[
           "Development Status :: 5 - Production/Stable",
-          "License :: OSI A`pproved :: MIT License",
+          "License :: OSI Approved :: MIT License",
           "Programming Language :: Python",
           "Programming Language :: Python :: 3",
           "Programming Language :: Python :: 3.4",
