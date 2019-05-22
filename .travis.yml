@@ -32,8 +32,8 @@ script:
     - if [[ $TRAVIS_PYTHON_VERSION == 3.7 ]]; then pep8 --ignore=$PEP8_IGNORE  --exclude=tests,.venv -r --show-source . ; fi
     # For convenience, make sure simple test commands work
     - python setup.py develop
-    - py.test
-    - nosetests
+    # - py.test
+    # - nosetests
 
 # load coverage status to https://coveralls.io
 after_success:
