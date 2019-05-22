@@ -1,11 +1,31 @@
 BERT for TensorFlow v2
 ======================
 
+|Build Status| |Coverage Status| |Version Status| |Python Versions|
 
-This repo contains a TensorFlow v2 Keras implementation of `google-research/bert`_,
+This repo contains a TensorFlow v2 Keras implementation of `google-research/bert`_
 with support for load the original `pre-trained weights`_,
 and producing numerically identical activations.
 
+
+LICENSE
+-------
+
+MIT. See `License File <https://github.com/kpe/bert-for-tf2/blob/master/LICENSE.txt>`_.
+
+Install
+-------
+
+``bert-for-tf2`` is on the Python Package Index (PyPI):
+
+::
+
+    pip install bert-for-tf2
+
+Usage
+-----
+
+TBD
 
 
 Resources
@@ -19,4 +39,12 @@ Resources
 .. _`google-research/bert`: https://github.com/google-research/bert
 .. _`BERT`: https://arxiv.org/abs/1810.04805
 .. _`kpe/params-flow`: https://github.com/kpe/params-flow
+
+.. |Build Status| image:: https://travis-ci.org/kpe/bert-for-tf2.svg?branch=master
+   :target: https://travis-ci.org/kpe/bert-for-tf2
+.. |Coverage Status| image:: https://coveralls.io/repos/kpe/bert-for-tf2/badge.svg?branch=master
+   :target: https://coveralls.io/r/kpe/bert-for-tf2
+.. |Version Status| image:: https://badge.fury.io/py/bert-for-tf2.svg
+   :target: https://badge.fury.io/py/bert-for-tf2
+.. |Python Versions| image:: https://img.shields.io/pypi/pyversions/setuptools.svg
 
