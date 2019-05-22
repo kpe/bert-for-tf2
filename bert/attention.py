@@ -9,11 +9,11 @@ import tensorflow as tf
 from tensorflow.python import keras
 from tensorflow.python.keras import backend as K
 
-import bert
+from bert.layer import Layer
 
 
-class AttentionLayer(bert.Layer):
-    class Params(bert.Layer.Params):
+class AttentionLayer(Layer):
+    class Params(Layer.Params):
         num_heads         = None
         size_per_head     = None
         initializer_range = 0.02

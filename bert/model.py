@@ -7,12 +7,12 @@ from __future__ import absolute_import, division, print_function
 
 from tensorflow.python import keras
 
-import bert
+from bert.layer import Layer
 from bert.embeddings import BertEmbeddingsLayer
 from bert.transformer import TransformerEncoderLayer
 
 
-class BertModelLayer(bert.Layer):
+class BertModelLayer(Layer):
     """
     BERT Model (arXiv:1810.04805).
 

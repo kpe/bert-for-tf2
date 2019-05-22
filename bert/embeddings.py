@@ -6,15 +6,17 @@
 from __future__ import absolute_import, division, print_function
 
 import tensorflow as tf
+
 from tensorflow.python import keras
 from tensorflow.python.keras import backend as K
 
-import bert
 from params_flow import LayerNormalization
 
+from bert.layer import Layer
 
-class PositionEmbeddingLayer(bert.Layer):
-    class Params(bert.Layer.Params):
+
+class PositionEmbeddingLayer(Layer):
+    class Params(Layer.Params):
         max_position_embeddings  = 512
         hidden_size              = 128
 
@@ -56,7 +58,7 @@ class PositionEmbeddingLayer(bert.Layer):
         return output
 
 
-class BertEmbeddingsLayer(bert.Layer):
+class BertEmbeddingsLayer(Layer):
     class Params(PositionEmbeddingLayer.Params):
         vocab_size               = None
         use_token_type           = True

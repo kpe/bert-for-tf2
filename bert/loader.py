@@ -9,7 +9,7 @@ import tensorflow as tf
 
 import params
 
-from bert import BertModelLayer
+from bert.model import BertModelLayer
 
 
 def map_from_stock_variale_name(name, prefix="bert"):

@@ -6,15 +6,13 @@
 from __future__ import absolute_import, division, print_function
 
 import tensorflow as tf
-
-import params_flow
-
+from params_flow import Layer
 from params_flow.activations import gelu
 
 
-class Layer(params_flow.Layer):
+class Layer(Layer):
     """ Common abstract base layer for all BERT layers. """
-    class Params(params_flow.layer.Params):
+    class Params(Layer.Params):
         initializer_range = 0.02
 
     def create_initializer(self):

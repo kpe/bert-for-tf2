@@ -5,16 +5,16 @@
 
 from __future__ import absolute_import, division, print_function
 
-import tensorflow as tf
 from tensorflow.python import keras
 
-import bert
-from bert.attention import AttentionLayer
 from params_flow import LayerNormalization
 
+from bert.attention import AttentionLayer
+from bert.layer import Layer
 
-class ProjectionLayer(bert.Layer):
-    class Params(bert.Layer.Params):
+
+class ProjectionLayer(Layer):
+    class Params(Layer.Params):
         hidden_size       = None
         hidden_dropout    = 0.1
         initializer_range = 0.02
@@ -48,7 +48,7 @@ class ProjectionLayer(bert.Layer):
         return output
 
 
-class TransformerSelfAttentionLayer(bert.Layer):
+class TransformerSelfAttentionLayer(Layer):
     class Params(ProjectionLayer.Params,
                  AttentionLayer.Params):
         hidden_size         = None
@@ -96,7 +96,7 @@ class TransformerSelfAttentionLayer(bert.Layer):
         return attention_output
 
 
-class SingleTransformerEncoderLayer(bert.Layer):
+class SingleTransformerEncoderLayer(Layer):
     """
     Multi-headed, single layer for the Transformer from 'Attention is All You Need' (arXiv: 1706.03762).
 
@@ -154,7 +154,7 @@ class SingleTransformerEncoderLayer(bert.Layer):
         return layer_output
 
 
-class TransformerEncoderLayer(bert.Layer):
+class TransformerEncoderLayer(Layer):
     """
     Multi-headed, multi-layer Transformer from 'Attention is All You Need' (arXiv: 1706.03762).
 

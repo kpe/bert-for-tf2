@@ -7,8 +7,6 @@
 
 from setuptools import setup
 
-import bert
-
 
 with open("README.rst", "r") as fh:
     long_description = fh.read()
@@ -17,7 +15,7 @@ with open("requirements.txt", "r") as reader:
     install_requires = list(map(lambda x: x.strip(), reader.readlines()))
 
 setup(name='bert-for-tf2',
-      version='0.0.2',
+      version='0.0.3',
       description="A TensorFlow 2.0 Keras implementation of BERT.",
       url="https://github.com/kpe/bert-for-tf2/",
       author="kpe",
