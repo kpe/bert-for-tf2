@@ -9,4 +9,3 @@ from .layer import Layer
 from .attention import AttentionLayer
 from .bert import BertModelLayer
 
-__version__ = '0.0.1'
