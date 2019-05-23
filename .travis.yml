@@ -26,7 +26,7 @@ install:
 # To skip pypy: - if [[ $TRAVIS_PYTHON_VERSION != 'pypy' ]]; then DOSTUFF ; fi
 script:
     - export MAJOR_PYTHON_VERSION=`echo $TRAVIS_PYTHON_VERSION | cut -c 1`
-    - coverage run --source=params_flow
+    - coverage run --source=bert
                    $(which nosetests) -v
                    --with-doctest tests/
                    --exclude-dir tests/nonci/
