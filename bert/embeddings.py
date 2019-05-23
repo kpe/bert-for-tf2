@@ -77,6 +77,7 @@ class BertEmbeddingsLayer(Layer):
 
         self.support_masking = True
 
+    # noinspection PyAttributeOutsideInit
     def build(self, input_shape):
         if isinstance(input_shape, list):
             assert len(input_shape) == 2

@@ -1,0 +1,4 @@
+include requirements-dev.txt
+include requirements.txt
+include README.rst
+include version

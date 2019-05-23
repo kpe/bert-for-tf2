@@ -26,6 +26,7 @@ class ProjectionLayer(Layer):
 
         self.supports_masking = True
 
+    # noinspection PyAttributeOutsideInit
     def build(self, input_shape):
         assert isinstance(input_shape, list) and 2 == len(input_shape)
         out_shape, residual_shape = input_shape

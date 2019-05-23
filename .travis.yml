@@ -19,21 +19,23 @@ install:
     - pip install --upgrade pip
     - pip install tensorflow==2.0.0-alpha0
     - pip install -r requirements.txt
-    - pip install coverage pep8 nose
+    - pip install coverage pep8 nose nose-exclude
 
 # command to run tests
 # require 100% coverage (not including test files) to pass Travis CI test
 # To skip pypy: - if [[ $TRAVIS_PYTHON_VERSION != 'pypy' ]]; then DOSTUFF ; fi
 script:
     - export MAJOR_PYTHON_VERSION=`echo $TRAVIS_PYTHON_VERSION | cut -c 1`
-    - coverage run --source=params_flow $(which nosetests)
+    - coverage run --source=params_flow
+                   $(which nosetests) -v
                    --with-doctest tests/
-    - if [[ $TRAVIS_PYTHON_VERSION == 3.7 ]]; then coverage report --show-missing --fail-under=10 ; fi
+                   --exclude-dir tests/nonci/
+    - if [[ $TRAVIS_PYTHON_VERSION == 3.7 ]]; then coverage report --show-missing --fail-under=50 ; fi
     - if [[ $TRAVIS_PYTHON_VERSION == 3.7 ]]; then pep8 --ignore=$PEP8_IGNORE  --exclude=tests,.venv -r --show-source . ; fi
     # For convenience, make sure simple test commands work
     - python setup.py develop
     # - py.test
-    # - nosetests
+    # - nosetests -e tests.nonci.*
 
 # load coverage status to https://coveralls.io
 after_success:

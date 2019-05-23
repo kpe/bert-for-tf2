@@ -1,0 +1,5 @@
+coverage
+docutils
+nose
+nose-exclude
+Pygments

@@ -4,9 +4,11 @@
 # created by kpe on 22.10.2018 at 11:46
 #
 
+from setuptools import setup, find_packages
 
-from setuptools import setup
 
+with open("version", "r") as fh:
+    __version__ = fh.read().strip()
 
 with open("README.rst", "r") as fh:
     long_description = fh.read()
@@ -14,21 +16,23 @@ with open("README.rst", "r") as fh:
 with open("requirements.txt", "r") as reader:
     install_requires = list(map(lambda x: x.strip(), reader.readlines()))
 
-setup(name='bert-for-tf2',
-      version='0.0.4',
-      description="A TensorFlow 2.0 Keras implementation of BERT.",
+setup(name="bert-for-tf2",
+      version=__version__,
       url="https://github.com/kpe/bert-for-tf2/",
-      author="kpe",
-      author_email="kpe.git@gmailbox.org",
-      license="MIT",
-      keywords="tensorflow keras bert",
-      packages=["bert"],
-      package_data={"bert": ["tests/*.py", "requirements.txt"]},
+      description="A TensorFlow 2.0 Keras implementation of BERT.",
       long_description=long_description,
       long_description_content_type="text/x-rst",
-      zip_safe=False,
+      keywords="tensorflow keras bert",
+      license="MIT",
+
+      author="kpe",
+      author_email="kpe.git@gmailbox.org",
+      packages=find_packages(exclude=["tests"]),
+      package_data={"": ["*.txt", "*.rst"]},
+
+      zip_safe=True,
       install_requires=install_requires,
-      python_requires=">=3.4",
+      python_requires=">=3.6",
       classifiers=[
           "Development Status :: 5 - Production/Stable",
           "License :: OSI Approved :: MIT License",

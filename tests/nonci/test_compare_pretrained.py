@@ -22,7 +22,7 @@ from bert.loader import map_from_stock_variale_name, map_to_stock_variable_name,
 from bert.loader import StockBertConfig, map_stock_config_to_params
 
 
-class _TestCompareBerts(unittest.TestCase):
+class TestCompareBertsOnPretrainedWeight(unittest.TestCase):
     bert_ckpt_dir = ".models/uncased_L-12_H-768_A-12/"
     bert_ckpt_file = bert_ckpt_dir + "bert_model.ckpt"
     bert_config_file = bert_ckpt_dir + "bert_config.json"
