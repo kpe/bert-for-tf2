@@ -18,7 +18,7 @@ from tensorflow.python import keras
 from bert.attention import AttentionLayer
 
 
-tf.enable_v2_behavior()
+# tf.enable_v2_behavior()
 # tf.enable_eager_execution()
 
 
