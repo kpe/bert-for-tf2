@@ -30,7 +30,7 @@ script:
                    $(which nosetests) -v
                    --with-doctest tests/
                    --exclude-dir tests/nonci/
-    - if [[ $TRAVIS_PYTHON_VERSION == 3.7 ]]; then coverage report --show-missing --fail-under=50 ; fi
+    - if [[ $TRAVIS_PYTHON_VERSION == 3.7 ]]; then coverage report --show-missing --fail-under=80 ; fi
     - if [[ $TRAVIS_PYTHON_VERSION == 3.7 ]]; then pep8 --ignore=$PEP8_IGNORE  --exclude=tests,.venv -r --show-source . ; fi
     # For convenience, make sure simple test commands work
     - python setup.py develop
