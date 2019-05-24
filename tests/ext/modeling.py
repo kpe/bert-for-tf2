@@ -362,8 +362,26 @@ def dropout(input_tensor, dropout_prob):
 
 def layer_norm(input_tensor, name=None):
   """Run layer normalization on the last dimension of the tensor."""
-  return tf.contrib.layers.layer_norm(
-      inputs=input_tensor, begin_norm_axis=-1, begin_params_axis=-1, scope=name)
+  # return tf.contrib.layers.layer_norm(
+  #     inputs=input_tensor, begin_norm_axis=-1, begin_params_axis=-1, scope=name)
+  
+  epsilon         = 1e-12
+
+  input_shape = input_tensor.shape
+  gamma = tf.compat.v1.get_variable(name="gamma", shape=input_shape[-1:], initializer=tf.compat.v1.initializers.ones(), trainable=True)
+  beta = tf.compat.v1.get_variable(name="beta", shape=input_shape[-1:], initializer=tf.compat.v1.initializers.zeros(), trainable=True)
+
+  x = input_tensor
+  if tf.__version__.startswith("2."):
+    mean, var = tf.nn.moments(x=x, axes=-1, keepdims=True)
+  else:
+    mean, var = tf.nn.moments(x, axes=-1, keep_dims=True)
+
+  inv = gamma * tf.math.rsqrt(var + epsilon)
+  res = x * tf.cast(inv, x.dtype) + tf.cast(beta - mean * inv, x.dtype)
+
+  return res
+
 
 
 def layer_norm_and_dropout(input_tensor, dropout_prob, name=None):
