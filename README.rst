@@ -3,10 +3,19 @@ BERT for TensorFlow v2
 
 |Build Status| |Coverage Status| |Version Status| |Python Versions|
 
-This repo contains a TensorFlow v2 Keras implementation of `google-research/bert`_
-with support for loading the original `pre-trained weights`_,
-and producing activations numerically identical to the one you get from the original model.
+This repo contains a `TensorFlow v2`_ `Keras`_ implementation of `google-research/bert`_
+with support for loading of the original `pre-trained weights`_,
+and producing activations **numerically identical** to the one calculated by the original model.
 
+
+The implementation is build from scratch using only basic tensorflow operations,
+following the code in `google-research/bert/modeling.py`_
+(but skipping dead code and applying some simplifications). It also utilizes `kpe/params-flow`_ to reduce
+common Keras boilerplate code (related to passing model and layer configuration arguments).
+
+.. _`google-research/bert/modeling.py`: https://github.com/google-research/bert/blob/master/modeling.py
+.. _`TensorFlow v2`: https://www.tensorflow.org/versions/r2.0/api_docs/python/tf
+.. _`Keras`: https://keras.io
 
 LICENSE
 -------
