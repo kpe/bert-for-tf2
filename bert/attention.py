@@ -88,10 +88,10 @@ class AttentionLayer(Layer):
         if mask is None:
             sh = self.get_shape_list(from_tensor)
             mask = tf.ones(sh[:2], dtype=tf.int32)
-        attention_mask = AttentionLayer.create_attention_mask(tf.shape(from_tensor), mask)
+        attention_mask = AttentionLayer.create_attention_mask(tf.shape(input=from_tensor), mask)
 
         #  from_tensor shape - [batch_size, from_seq_length, from_width]
-        input_shape  = tf.shape(from_tensor)
+        input_shape  = tf.shape(input=from_tensor)
         batch_size, from_seq_len, from_width = input_shape[0], input_shape[1], input_shape[2]
         to_seq_len = from_seq_len
 
@@ -100,7 +100,7 @@ class AttentionLayer(Layer):
             output_shape = [batch_size, seq_len,
                             self.params.num_heads, self.params.size_per_head]
             output_tensor = K.reshape(input_tensor, output_shape)
-            return tf.transpose(output_tensor, [0, 2, 1, 3])                      # [B,N,F,H]
+            return tf.transpose(a=output_tensor, perm=[0, 2, 1, 3])  # [B,N,F,H]
 
         query = self.query_layer(from_tensor)  # [B,F, N*H] [batch_size, from_seq_len, N*H]
         key   = self.key_layer(to_tensor)      # [B,T, N*H]
@@ -129,10 +129,10 @@ class AttentionLayer(Layer):
         # [B,T,N,H]
         value = tf.reshape(value, [batch_size, to_seq_len,
                                    self.params.num_heads, self.params.size_per_head])
-        value = tf.transpose(value, [0, 2, 1, 3])                                       # [B, N, T, H]
+        value = tf.transpose(a=value, perm=[0, 2, 1, 3])                                # [B, N, T, H]
 
         context_layer = tf.matmul(attention_probs, value)                               # [B, N, F, H]
-        context_layer = tf.transpose(context_layer, [0, 2, 1, 3])                       # [B, F, N, H]
+        context_layer = tf.transpose(a=context_layer, perm=[0, 2, 1, 3])                # [B, F, N, H]
 
         output_shape = [batch_size, from_seq_len,
                         self.params.num_heads * self.params.size_per_head]

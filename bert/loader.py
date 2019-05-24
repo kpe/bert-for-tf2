@@ -107,7 +107,7 @@ def map_stock_config_to_params(bc):
 
 def load_stock_weights(bert: BertModelLayer, ckpt_file):
     assert isinstance(bert, BertModelLayer), "Expecting a BertModelLayer instance as first argument"
-    assert tf.train.checkpoint_exists(ckpt_file), "Checkpoint does not exist: {}".format(ckpt_file)
+    assert tf.compat.v1.train.checkpoint_exists(ckpt_file), "Checkpoint does not exist: {}".format(ckpt_file)
     ckpt_reader = tf.train.load_checkpoint(ckpt_file)
 
     bert_prefix = bert.weights[0].name.split("/")[0]
