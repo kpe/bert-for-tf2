@@ -40,7 +40,7 @@ BERT in `bert-for-tf2` is implemented as a Keras layer. You could instantiate it
 
   from bert import BertModelLayer
 
-  bert_layer = BertModelLayer(BertModelLayer.Params(
+  l_bert = BertModelLayer(BertModelLayer.Params(
     vocab_size               = 16000,        # embedding params
     use_token_type           = True,
     use_position_embeddings  = True,
@@ -76,15 +76,6 @@ or by using the ``bert_config.json`` from a `pre-trained google model`_:
 
   l_bert = BertModelLayer.from_params(bert_params, name="bert")
 
-  # build your model here using the BERT layer l_bert, e.g.
-  max_seq_len=128
-  l_input_ids      = keras.layers.Input(shape=(max_seq_len,), dtype='int32')
-  l_token_type_ids = keras.layers.Input(shape=(max_seq_len,), dtype='int32')
-  model = keras.Model(inputs=[l_input_ids, l_token_type_ids], outputs=output)
-  model.build(input_shape=[(None, max_seq_len), (None, max_seq_len)])
-
-  # before you load the weights
-  load_stock_weights(l_bert, bert_ckpt_file)
 
 now you can use the BERT layer in your Keras model like this:
 
@@ -100,6 +91,13 @@ now you can use the BERT layer in your Keras model like this:
 
   output = l_bert([l_input_ids, l_token_type_ids])  # [batch_size, max_seq_len, hidden_size]
 
+before you load the original pre-trained weights into your BERT layer:
+
+.. code:: python
+
+  from bert.loader import load_stock_weights
+
+  load_stock_weights(l_bert, bert_ckpt_file)
 
 **N.B.** see `tests/test_bert_activations.py`_ for a complete example.
 
