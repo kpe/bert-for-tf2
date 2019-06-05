@@ -1,4 +1,5 @@
 
+tensorflow[gpu,tpu] >=1.14.0rc
 
 py-params   >= 0.6.3
 params-flow >= 0.2.2

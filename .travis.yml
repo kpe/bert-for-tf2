@@ -17,7 +17,7 @@ env:
 # command to install dependencies
 install:
     - pip install --upgrade pip
-    - pip install tensorflow==2.0.0-alpha0
+    - pip install 'tensorflow>=1.14.0rc'
     - pip install -r requirements.txt
     - pip install coverage pep8 nose nose-exclude
 
