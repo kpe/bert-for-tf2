@@ -142,7 +142,7 @@ class CompareBertActivationsTest(unittest.TestCase):
     def load_keras_model(model_dir, max_seq_len):
         from tensorflow.python import keras
         from bert import BertModelLayer
-        from bert.loader import StockBertConfig, map_stock_config_to_params, load_stock_weights
+        from bert.loader import StockBertConfig, load_stock_weights
 
         bert_config_file = os.path.join(model_dir, "bert_config.json")
         bert_ckpt_file   = os.path.join(model_dir, "bert_model.ckpt")
@@ -150,8 +150,7 @@ class CompareBertActivationsTest(unittest.TestCase):
         l_bert = None
         with tf.io.gfile.GFile(bert_config_file, "r") as reader:
             bc = StockBertConfig.from_json_string(reader.read())
-            l_bert = BertModelLayer.from_params(map_stock_config_to_params(bc),
-                                              name="bert")
+            l_bert = BertModelLayer.from_params(bc.to_bert_model_layer_params(), name="bert")
 
         l_input_ids      = keras.layers.Input(shape=(max_seq_len,), dtype='int32', name="input_ids")
         l_token_type_ids = keras.layers.Input(shape=(max_seq_len,), dtype='int32', name="token_type_ids")
