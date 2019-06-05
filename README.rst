@@ -75,6 +75,13 @@ or by using the ``bert_config.json`` from a `pre-trained google model`_:
     bert_params  = stock_params.to_bert_model_layer_params()
 
   l_bert = BertModelLayer.from_params(bert_params, name="bert")
+
+  # build your model here, i.e.
+  model = keras.Model(inputs=[l_input_ids, l_token_type_ids], outputs=output)
+  model.build(input_shape=[(None, max_seq_len),
+                           (None, max_seq_len)])
+
+  # before you load the weights
   load_stock_weights(l_bert, bert_ckpt_file)
 
 now you can use the BERT layer in your Keras model like this:
