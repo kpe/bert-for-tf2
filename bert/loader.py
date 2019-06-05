@@ -79,6 +79,9 @@ class StockBertConfig(params.Params):
     type_vocab_size              = None,  # 2,
     vocab_size                   = None,  # 30522
 
+    def to_bert_model_layer_params(self):
+        return map_stock_config_to_params(self)
+
 
 def map_stock_config_to_params(bc):
     """

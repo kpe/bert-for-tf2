@@ -3,7 +3,7 @@ BERT for TensorFlow v2
 
 |Build Status| |Coverage Status| |Version Status| |Python Versions|
 
-This repo contains a `TensorFlow v2`_ `Keras`_ implementation of `google-research/bert`_
+This repo contains a `TensorFlow 2.0`_ `Keras`_ implementation of `google-research/bert`_
 with support for loading of the original `pre-trained weights`_,
 and producing activations **numerically identical** to the one calculated by the original model.
 
@@ -12,6 +12,8 @@ The implementation is build from scratch using only basic tensorflow operations,
 following the code in `google-research/bert/modeling.py`_
 (but skipping dead code and applying some simplifications). It also utilizes `kpe/params-flow`_ to reduce
 common Keras boilerplate code (related to passing model and layer configuration arguments).
+
+`bert-for-tf2`_ should work with both `TensorFlow 2.0`_ and `TensorFlow 1.14`_ or newer.
 
 
 LICENSE
@@ -28,29 +30,91 @@ Install
 
     pip install bert-for-tf2
 
+
 Usage
 -----
 
-TBD
+BERT in `bert-for-tf2` is implemented as a Keras layer. You could instantiate it like this:
 
+.. code:: python
+
+  from bert import BertModelLayer
+
+  bert_layer = BertModelLayer(BertModelLayer.Params(
+    vocab_size               = 16000,        # embedding params
+    use_token_type           = True,
+    use_position_embeddings  = True,
+    token_type_vocab_size    = 2,
+
+    num_layers               = 12,           # transformer encoder params
+    hidden_size              = 768,
+    hidden_dropout           = 0.1,
+    intermediate_size        = 4*768,
+    intermediate_activation  = "gelu",
+
+    name                     = "bert"        # any other Keras layer params
+  ))
+
+or by using the ``bert_config.json`` from a `pre-trained google model`_:
+
+.. code:: python
+
+  import os
+  import tensorflow as tf
+  from tensorflow.python import keras
+  from bert import BertModelLayer
+  from bert.loader import StockBertConfig, load_stock_weights
+
+  model_dir = ".models/uncased_L-12_H-768_A-12"
+
+  bert_config_file = os.path.join(model_dir, "bert_config.json")
+  bert_ckpt_file   = os.path.join(model_dir, "bert_model.ckpt")
+
+  with tf.io.gfile.GFile(bert_config_file, "r") as reader:
+    stock_params = StockBertConfig.from_json_string(reader.read())
+    bert_params  = stock_params.to_bert_model_layer_params()
+
+  l_bert = BertModelLayer.from_params(bert_params, name="bert")
+  load_stock_weights(l_bert, bert_ckpt_file)
+
+now you can use the BERT layer in your Keras model like this:
+
+.. code:: python
+
+  from tensorflow.python import keras
+
+  max_seq_len = 128
+  l_input_ids      = keras.layers.Input(shape=(max_seq_len,), dtype='int32',
+                                        name="input_ids")
+  l_token_type_ids = keras.layers.Input(shape=(max_seq_len,), dtype='int32',
+                                        name="token_type_ids")
+
+  output = l_bert([l_input_ids, l_token_type_ids])  # [batch_size, max_seq_len, hidden_size]
+
+
+**N.B.** see `tests/test_bert_activations.py`_ for a complete example.
 
 Resources
 ---------
 
 - `BERT`_ - BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding
 - `google-research/bert`_ - the original BERT implementation
-- `kpe/params-flow`_ - A Keras coding style for for reducing `Keras`_ boilerplate code in custom layers by utilizing `kpe/py-params`_
+- `kpe/params-flow`_ - A Keras coding style for reducing `Keras`_ boilerplate code in custom layers by utilizing `kpe/py-params`_
 
 
 .. _`kpe/params-flow`: https://github.com/kpe/params-flow
 .. _`kpe/py-params`: https://github.com/kpe/py-params
+.. _`bert-for-tf2`: https://github.com/kpe/bert-for-tf2
 
 .. _`Keras`: https://keras.io
-.. _`TensorFlow v2`: https://www.tensorflow.org/versions/r2.0/api_docs/python/tf
 .. _`pre-trained weights`: https://github.com/google-research/bert#pre-trained-models
 .. _`google-research/bert`: https://github.com/google-research/bert
 .. _`google-research/bert/modeling.py`: https://github.com/google-research/bert/blob/master/modeling.py
 .. _`BERT`: https://arxiv.org/abs/1810.04805
+.. _`pre-trained google model`: https://github.com/google-research/bert
+.. _`tests/test_bert_activations.py`: https://github.com/kpe/bert-for-tf2/blob/master/tests/test_compare_activations.py
+.. _`TensorFlow 2.0`: https://www.tensorflow.org/versions/r2.0/api_docs/python/tf
+.. _`TensorFlow 1.14`: https://www.tensorflow.org/versions/r1.14/api_docs/python/tf
 
 .. |Build Status| image:: https://travis-ci.org/kpe/bert-for-tf2.svg?branch=master
    :target: https://travis-ci.org/kpe/bert-for-tf2
