@@ -13,6 +13,8 @@ import tempfile
 import tensorflow as tf
 import numpy as np
 
+from tensorflow.python import keras
+
 tf.compat.v1.disable_eager_execution()
 
 
@@ -227,7 +229,6 @@ class CompareBertActivationsTest(unittest.TestCase):
         input_str_batch    = ["hello, bert!", "how are you doing!"]
 
         input_ids_batch    = []
-        input_mask_batch   = []
         token_type_ids_batch = []
         for input_str in input_str_batch:
             input_tokens = tokenizer.tokenize(input_str)
@@ -235,27 +236,24 @@ class CompareBertActivationsTest(unittest.TestCase):
 
             print("input_tokens len:", len(input_tokens))
 
-            input_ids    = tokenizer.convert_tokens_to_ids(input_tokens)
+            input_ids      = tokenizer.convert_tokens_to_ids(input_tokens)
             input_ids      = input_ids             + [0]*(max_seq_len - len(input_tokens))
-            input_mask     = [1]*len(input_tokens) + [0]*(max_seq_len - len(input_tokens))
             token_type_ids = [0]*len(input_tokens) + [0]*(max_seq_len - len(input_tokens))
 
             input_ids_batch.append(input_ids)
-            input_mask_batch.append(input_mask)
             token_type_ids_batch.append(token_type_ids)
 
         input_ids      = np.array(input_ids_batch, dtype=np.int32)
-        input_mask     = np.array(input_mask_batch, dtype=np.int32)
         token_type_ids = np.array(token_type_ids_batch, dtype=np.int32)
 
         print("   tokens:", input_tokens)
         print("input_ids:{}/{}:{}".format(len(input_tokens), max_seq_len, input_ids), input_ids.shape, token_type_ids)
 
         model = CompareBertActivationsTest.load_keras_model(model_dir, max_seq_len)
-        model.compile(optimizer=tf.keras.optimizers.Adam(),
-                      loss=tf.keras.losses.mean_squared_error)
+        model.compile(optimizer=keras.optimizers.Adam(),
+                      loss=keras.losses.mean_squared_error)
 
-        pres = model.predict([input_ids, token_type_ids])
+        pres = model.predict([input_ids, token_type_ids])  # just for fetching the shape of the output
         print("pres:", pres.shape)
 
         model.fit(x=(input_ids, token_type_ids),
