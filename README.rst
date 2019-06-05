@@ -84,10 +84,8 @@ now you can use the BERT layer in your Keras model like this:
   from tensorflow.python import keras
 
   max_seq_len = 128
-  l_input_ids      = keras.layers.Input(shape=(max_seq_len,), dtype='int32',
-                                        name="input_ids")
-  l_token_type_ids = keras.layers.Input(shape=(max_seq_len,), dtype='int32',
-                                        name="token_type_ids")
+  l_input_ids      = keras.layers.Input(shape=(max_seq_len,), dtype='int32')
+  l_token_type_ids = keras.layers.Input(shape=(max_seq_len,), dtype='int32')
 
   output = l_bert([l_input_ids, l_token_type_ids])  # [batch_size, max_seq_len, hidden_size]
 
