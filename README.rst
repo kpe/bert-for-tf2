@@ -76,10 +76,12 @@ or by using the ``bert_config.json`` from a `pre-trained google model`_:
 
   l_bert = BertModelLayer.from_params(bert_params, name="bert")
 
-  # build your model here, i.e.
+  # build your model here using the BERT layer l_bert, e.g.
+  max_seq_len=128
+  l_input_ids      = keras.layers.Input(shape=(max_seq_len,), dtype='int32')
+  l_token_type_ids = keras.layers.Input(shape=(max_seq_len,), dtype='int32')
   model = keras.Model(inputs=[l_input_ids, l_token_type_ids], outputs=output)
-  model.build(input_shape=[(None, max_seq_len),
-                           (None, max_seq_len)])
+  model.build(input_shape=[(None, max_seq_len), (None, max_seq_len)])
 
   # before you load the weights
   load_stock_weights(l_bert, bert_ckpt_file)
