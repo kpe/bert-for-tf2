@@ -16,7 +16,8 @@ from tensorflow.python import keras
 
 from bert import BertModelLayer
 
-tf.enable_eager_execution()
+
+tf.compat.v1.enable_eager_execution()
 
 
 class MaskFlatten(keras.layers.Flatten):

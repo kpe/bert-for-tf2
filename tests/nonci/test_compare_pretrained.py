@@ -21,6 +21,8 @@ from bert import BertModelLayer
 from bert.loader import map_from_stock_variale_name, map_to_stock_variable_name, load_stock_weights
 from bert.loader import StockBertConfig, map_stock_config_to_params
 
+tf.compat.v1.disable_eager_execution()
+
 
 class TestCompareBertsOnPretrainedWeight(unittest.TestCase):
     bert_ckpt_dir = ".models/uncased_L-12_H-768_A-12/"
@@ -146,12 +148,14 @@ class TestCompareBertsOnPretrainedWeight(unittest.TestCase):
         from tests.ext.tokenization import FullTokenizer
         from tests.ext.modeling import BertModel, BertConfig, get_assignment_map_from_checkpoint
 
+        tf.compat.v1.reset_default_graph()
+
         tf_placeholder = tf.compat.v1.placeholder
 
         max_seq_len       = input_ids.shape[-1]
-        pl_input_ids      = tf_placeholder(tf.int32, shape=(1, max_seq_len))
-        pl_mask           = tf_placeholder(tf.int32, shape=(1, max_seq_len))
-        pl_token_type_ids = tf_placeholder(tf.int32, shape=(1, max_seq_len))
+        pl_input_ids      = tf.compat.v1.placeholder(tf.int32, shape=(1, max_seq_len))
+        pl_mask           = tf.compat.v1.placeholder(tf.int32, shape=(1, max_seq_len))
+        pl_token_type_ids = tf.compat.v1.placeholder(tf.int32, shape=(1, max_seq_len))
 
         bert_config = BertConfig.from_json_file(self.bert_config_file)
         tokenizer = FullTokenizer(vocab_file=os.path.join(self.bert_ckpt_dir, "vocab.txt"))
@@ -214,6 +218,6 @@ class TestCompareBertsOnPretrainedWeight(unittest.TestCase):
 
         adiff = np.abs(s_res-k_res).flatten()
         print("diff:", np.max(adiff), np.argmax(adiff))
-        self.assertTrue(np.allclose(s_res, k_res, atol=1e-8))
+        self.assertTrue(np.allclose(s_res, k_res, atol=1e-6))
 
 
