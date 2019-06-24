@@ -20,6 +20,7 @@ import params
 from bert import BertModelLayer
 from bert.loader import map_from_stock_variale_name, map_to_stock_variable_name, load_stock_weights
 from bert.loader import StockBertConfig, map_stock_config_to_params
+from bert.tokenization import FullTokenizer
 
 tf.compat.v1.disable_eager_execution()
 
@@ -145,7 +146,6 @@ class TestCompareBertsOnPretrainedWeight(unittest.TestCase):
         return k_res
 
     def predict_on_stock_model(self, input_ids, input_mask, token_type_ids):
-        from tests.ext.tokenization import FullTokenizer
         from tests.ext.modeling import BertModel, BertConfig, get_assignment_map_from_checkpoint
 
         tf.compat.v1.reset_default_graph()
@@ -183,7 +183,6 @@ class TestCompareBertsOnPretrainedWeight(unittest.TestCase):
         return s_res
 
     def test_direct_keras_to_stock_compare(self):
-        from tests.ext.tokenization import FullTokenizer
         from tests.ext.modeling import BertModel, BertConfig, get_assignment_map_from_checkpoint
 
         bert_config = BertConfig.from_json_file(self.bert_config_file)

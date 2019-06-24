@@ -15,6 +15,8 @@ import numpy as np
 
 from tensorflow.python import keras
 
+from bert.tokenization import FullTokenizer, validate_case_matches_checkpoint
+
 tf.compat.v1.disable_eager_execution()
 
 
@@ -59,6 +61,8 @@ class MiniBertFactory:
                 ckpt_path = os.path.join(model_dir, "bert_model.ckpt")
                 save_path = saver.save(sess, ckpt_path, write_meta_graph=True)
                 print("saving to:", save_path)
+
+        validate_case_matches_checkpoint(True, save_path)
 
         return save_path
 
@@ -176,7 +180,6 @@ class CompareBertActivationsTest(unittest.TestCase):
         return k_res
 
     def test_compare(self):
-        from tests.ext.tokenization import FullTokenizer
 
         model_dir = tempfile.TemporaryDirectory().name
         os.makedirs(model_dir)
@@ -217,7 +220,6 @@ class CompareBertActivationsTest(unittest.TestCase):
 
     def test_finetune(self):
 
-        from tests.ext.tokenization import FullTokenizer
 
         model_dir = tempfile.TemporaryDirectory().name
         os.makedirs(model_dir)
