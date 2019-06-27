@@ -163,7 +163,8 @@ class TransformerEncoderLayer(Layer):
     """
 
     class Params(SingleTransformerEncoderLayer.Params):
-        num_layers    = None
+        num_layers     = None
+        out_layer_ndxs = None  # [-1]
 
     def _construct(self, params: Params):
         self.encoder_layers = []
@@ -195,8 +196,14 @@ class TransformerEncoderLayer(Layer):
             layer_output = encoder_layer(layer_input, mask=mask, training=training)
             layer_outputs.append(layer_output)
 
-        # return the final layer only
-        final_output = layer_output
+        if self.params.out_layer_ndxs is None:
+            # return the final layer only
+            final_output = layer_output
+        else:
+            final_output = []
+            for ndx in self.params.out_layer_ndxs:
+                final_output.append(layer_outputs[ndx])
+            final_output = tuple(final_output)
 
         return final_output
 

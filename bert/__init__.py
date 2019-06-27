@@ -8,3 +8,4 @@ from .attention import AttentionLayer
 from .layer import Layer
 from .model import BertModelLayer
 
+from .loader import StockBertConfig, load_stock_weights
