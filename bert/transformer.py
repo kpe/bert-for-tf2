@@ -5,6 +5,7 @@
 
 from __future__ import absolute_import, division, print_function
 
+import tensorflow as tf
 from tensorflow.python import keras
 
 from params_flow import LayerNormalization
@@ -15,14 +16,20 @@ from bert.layer import Layer
 
 class ProjectionLayer(Layer):
     class Params(Layer.Params):
-        hidden_size       = None
-        hidden_dropout    = 0.1
-        initializer_range = 0.02
+        hidden_size        = None
+        hidden_dropout     = 0.1
+        initializer_range  = 0.02
+        adapter_size       = None       # bottleneck size of the adapter - arXiv:1902.00751
+        adapter_activation = "gelu"
+        adapter_init_scale = 1e-3
 
     def _construct(self, params: Params):
         self.dense      = None
         self.dropout    = None
         self.layer_norm = None
+
+        self.adapter_down = None
+        self.adapter_up   = None
 
         self.supports_masking = True
 
@@ -39,12 +46,28 @@ class ProjectionLayer(Layer):
         self.dropout    = keras.layers.Dropout(rate=self.params.hidden_dropout)
         self.layer_norm = LayerNormalization(name="LayerNorm")
 
+        if self.params.adapter_size is not None:
+            self.adapter_down = keras.layers.Dense(units=self.params.adapter_size,
+                                                   kernel_initializer=tf.compat.v1.initializers.truncated_normal(
+                                                       stddev=self.params.adapter_init_scale),
+                                                   activation=self.get_activation(self.params.adapter_activation),
+                                                   name="adapter-down")
+            self.adapter_up   = keras.layers.Dense(units=self.params.hidden_size,
+                                                   kernel_initializer=tf.compat.v1.initializers.truncated_normal(
+                                                       stddev=self.params.adapter_init_scale),
+                                                   name="adapter-up")
+
         super(ProjectionLayer, self).build(input_shape)
 
     def call(self, inputs, mask=None, training=None, **kwargs):
         output, residual = inputs
         output = self.dense(output)
         output = self.dropout(output, training=training)
+
+        if self.adapter_down is not None:
+            output = self.adapter_down(output)
+            output = self.adapter_up(output)
+
         output = self.layer_norm(output + residual)
         return output
 
@@ -115,9 +138,9 @@ class SingleTransformerEncoderLayer(Layer):
                                                                                                params.num_heads))
         self.size_per_head = params.hidden_size // params.num_heads
 
-        self.self_attention      = None
-        self.intermediate_layer  = None
-        self.output_projector    = None
+        self.self_attention_layer = None
+        self.intermediate_layer   = None
+        self.output_projector     = None
 
         self.supports_masking = True
 

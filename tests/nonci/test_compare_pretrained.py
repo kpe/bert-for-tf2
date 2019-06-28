@@ -167,12 +167,12 @@ class TestCompareBertsOnPretrainedWeight(unittest.TestCase):
                                token_type_ids=pl_token_type_ids,
                                use_one_hot_embeddings=False)
 
-        tvars = tf.trainable_variables()
+        tvars = tf.compat.v1.trainable_variables()
         (assignment_map, initialized_var_names) = get_assignment_map_from_checkpoint(tvars, self.bert_ckpt_file)
-        tf.train.init_from_checkpoint(self.bert_ckpt_file, assignment_map)
+        tf.compat.v1.train.init_from_checkpoint(self.bert_ckpt_file, assignment_map)
 
-        with tf.Session() as sess:
-            sess.run(tf.global_variables_initializer())
+        with tf.compat.v1.Session() as sess:
+            sess.run(tf.compat.v1.global_variables_initializer())
 
             s_res = sess.run(
                 s_model.get_sequence_output(),

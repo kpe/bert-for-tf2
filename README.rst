@@ -15,6 +15,14 @@ common Keras boilerplate code (related to passing model and layer configuration 
 
 `bert-for-tf2`_ should work with both `TensorFlow 2.0`_ and `TensorFlow 1.14`_ or newer.
 
+NEWS
+----
+
+ - **28.Jun.2019** - v.0.3.0 supports `adapter-BERT`_ (`google-research/adapter-bert`_)
+   for "Parameter-Efficient Transfer Learning for NLP", i.e. fine-tuning small overlay adapter
+   layers over BERT's transformer encoders without changing the frozen BERT weights.
+
+
 
 LICENSE
 -------
@@ -128,6 +136,9 @@ Resources
 .. _`tests/test_bert_activations.py`: https://github.com/kpe/bert-for-tf2/blob/master/tests/test_compare_activations.py
 .. _`TensorFlow 2.0`: https://www.tensorflow.org/versions/r2.0/api_docs/python/tf
 .. _`TensorFlow 1.14`: https://www.tensorflow.org/versions/r1.14/api_docs/python/tf
+
+.. _`google-research/adapter-bert`: https://github.com/google-research/adapter-bert/
+.. _`adapter-BERT`: https://arxiv.org/abs/1902.00751
 
 .. |Build Status| image:: https://travis-ci.org/kpe/bert-for-tf2.svg?branch=master
    :target: https://travis-ci.org/kpe/bert-for-tf2
