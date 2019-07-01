@@ -65,8 +65,9 @@ class ProjectionLayer(Layer):
         output = self.dropout(output, training=training)
 
         if self.adapter_down is not None:
-            output = self.adapter_down(output)
-            output = self.adapter_up(output)
+            adapted = self.adapter_down(output)
+            adapted = self.adapter_up(adapted)
+            output = output + adapted
 
         output = self.layer_norm(output + residual)
         return output
