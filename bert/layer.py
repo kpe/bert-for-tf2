@@ -17,6 +17,7 @@ class Layer(Layer):
 
     def create_initializer(self):
         return tf.compat.v1.initializers.truncated_normal(stddev=self.params.initializer_range)
+        # return tf.compat.v2.initializers.TruncatedNormal(stddev=self.params.initializer_range)
         # TODO: TF < v2.0
         # return tf.truncated_normal_initializer(stddev=self.params.initializer_range)
 

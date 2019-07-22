@@ -125,7 +125,7 @@ def load_stock_weights(bert: BertModelLayer, ckpt_file):
         else:
             print("loader: No value for:[{}], i.e.:[{}] in:[{}]".format(weight.name, stock_name, ckpt_file))
             # raise ValueError("No value for:[{}], i.e.:[{}] in:[{}]".format(weight.name, stock_name, ckpt_file))
-            weights.append(weight.value())
+            weights.append(weight.value().numpy())
 
     bert.set_weights(weights)
     print("Done loading {} BERT weights from: {} into {} (prefix:{})".format(
