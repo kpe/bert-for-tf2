@@ -8,6 +8,8 @@ from __future__ import absolute_import, division, print_function
 import os
 
 import tensorflow as tf
+from tensorflow import keras
+
 import params
 
 from bert.model import BertModelLayer
@@ -126,27 +128,29 @@ def load_stock_weights(bert: BertModelLayer, ckpt_file):
 
     bert_prefix = bert.weights[0].name.split("/")[0]
 
-    #
-    # To set_weights() expects numpy arrays, so we
-    # need to obtain numerical values for the weights
-    # not present in the ckpt_file, when eager execution is not enabled.
-    #
-    if not tf.executing_eagerly():
-        with tf.Session() as sess:
-            sess.run(tf.global_variables_initializer())
-            weights = sess.run(bert.weights)
-    else:
-        weights = [weight.value() for weight in bert.weights]
+    skip_count = 0
+    weight_value_tuples = []
 
-    for ndx, (weight, model_weight) in enumerate(zip(weights, bert.weights)):
-        stock_name = map_to_stock_variable_name(model_weight.name, bert_prefix)
+    bert_params = bert.weights
+    param_values = keras.backend.batch_get_value(bert.weights)
+    for ndx, (param_value, param) in enumerate(zip(param_values, bert_params)):
+        stock_name = map_to_stock_variable_name(param.name, bert_prefix)
 
         if ckpt_reader.has_tensor(stock_name):
-            value = ckpt_reader.get_tensor(stock_name)
-            weights[ndx] = value
-        else:
-            print("loader: No value for:[{}], i.e.:[{}] in:[{}]".format(model_weight.name, stock_name, ckpt_file))
+            ckpt_value = ckpt_reader.get_tensor(stock_name)
 
-    bert.set_weights(weights)
-    print("Done loading {} BERT weights from: {} into {} (prefix:{})".format(
-        len(weights), ckpt_file, bert, bert_prefix))
+            if param_value.shape != ckpt_value.shape:
+                raise ValueError("Layer weight shape:[{}] not compatible "
+                                 "with checkpoint:[{}] shape:{}".format(param.shape, stock_name, ckpt_value.shape))
+
+            weight_value_tuples.append((param, ckpt_value))
+        else:
+            print("loader: No value for:[{}], i.e.:[{}] in:[{}]".format(param.name, stock_name, ckpt_file))
+            skip_count += 1
+    keras.backend.batch_set_value(weight_value_tuples)
+
+    print("Done loading {} BERT weights from: {} into {} (prefix:{}). "
+          "Count of weights not found in the checkpoint was: {}".format(
+        len(weight_value_tuples),
+        ckpt_file,
+        bert, bert_prefix, skip_count))
