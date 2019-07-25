@@ -149,8 +149,5 @@ def load_stock_weights(bert: BertModelLayer, ckpt_file):
             skip_count += 1
     keras.backend.batch_set_value(weight_value_tuples)
 
-    print("Done loading {} BERT weights from: {} into {} (prefix:{}). "
-          "Count of weights not found in the checkpoint was: {}".format(
-        len(weight_value_tuples),
-        ckpt_file,
-        bert, bert_prefix, skip_count))
+    print("Done loading {} BERT weights from: {} into {} (prefix:{}). Count of weights not found in the checkpoint was: {}".format(
+          len(weight_value_tuples), ckpt_file, bert, bert_prefix, skip_count))
