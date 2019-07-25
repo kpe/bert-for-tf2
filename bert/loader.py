@@ -5,8 +5,9 @@
 
 from __future__ import absolute_import, division, print_function
 
-import tensorflow as tf
+import os
 
+import tensorflow as tf
 import params
 
 from bert.model import BertModelLayer
@@ -108,6 +109,16 @@ def map_stock_config_to_params(bc):
     return bert_params
 
 
+def params_from_pretrained_ckpt(bert_ckpt_dir):
+    bert_config_file = os.path.join(bert_ckpt_dir, "bert_config.json")
+
+    with tf.io.gfile.GFile(bert_config_file, "r") as reader:
+        bc = StockBertConfig.from_json_string(reader.read())
+        bert_params = map_stock_config_to_params(bc)
+
+    return bert_params
+
+
 def load_stock_weights(bert: BertModelLayer, ckpt_file):
     assert isinstance(bert, BertModelLayer), "Expecting a BertModelLayer instance as first argument"
     assert tf.compat.v1.train.checkpoint_exists(ckpt_file), "Checkpoint does not exist: {}".format(ckpt_file)
@@ -115,17 +126,26 @@ def load_stock_weights(bert: BertModelLayer, ckpt_file):
 
     bert_prefix = bert.weights[0].name.split("/")[0]
 
-    weights = []
-    for weight in bert.weights:
-        stock_name = map_to_stock_variable_name(weight.name, bert_prefix)
+    #
+    # To set_weights() expects numpy arrays, so we
+    # need to obtain numerical values for the weights
+    # not present in the ckpt_file, when eager execution is not enabled.
+    #
+    if not tf.executing_eagerly():
+        with tf.Session() as sess:
+            sess.run(tf.global_variables_initializer())
+            weights = sess.run(bert.weights)
+    else:
+        weights = [weight.value() for weight in bert.weights]
+
+    for ndx, (weight, model_weight) in enumerate(zip(weights, bert.weights)):
+        stock_name = map_to_stock_variable_name(model_weight.name, bert_prefix)
 
         if ckpt_reader.has_tensor(stock_name):
             value = ckpt_reader.get_tensor(stock_name)
-            weights.append(value)
+            weights[ndx] = value
         else:
-            print("loader: No value for:[{}], i.e.:[{}] in:[{}]".format(weight.name, stock_name, ckpt_file))
-            # raise ValueError("No value for:[{}], i.e.:[{}] in:[{}]".format(weight.name, stock_name, ckpt_file))
-            weights.append(weight.value())  # make sure to use eager execution mode
+            print("loader: No value for:[{}], i.e.:[{}] in:[{}]".format(model_weight.name, stock_name, ckpt_file))
 
     bert.set_weights(weights)
     print("Done loading {} BERT weights from: {} into {} (prefix:{})".format(
