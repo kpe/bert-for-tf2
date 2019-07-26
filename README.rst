@@ -18,6 +18,10 @@ common Keras boilerplate code (related to passing model and layer configuration 
 NEWS
 ----
 
+ - **25.Jul.2019** - there are now two colab notebooks under ``examples/`` showing how to
+   fine-tune an IMDB Movie Reviews sentiment classifier from pre-trained BERT weights
+   using an adapter-BERT model architecture on a GPU or TPU in Google Colab.
+
  - **28.Jun.2019** - v.0.3.0 supports `adapter-BERT`_ (`google-research/adapter-bert`_)
    for "Parameter-Efficient Transfer Learning for NLP", i.e. fine-tuning small overlay adapter
    layers over BERT's transformer encoders without changing the frozen BERT weights.
@@ -59,6 +63,8 @@ BERT in `bert-for-tf2` is implemented as a Keras layer. You could instantiate it
     hidden_dropout           = 0.1,
     intermediate_size        = 4*768,
     intermediate_activation  = "gelu",
+
+    adapter_size             = None,         # see arXiv:1902.00751
 
     name                     = "bert"        # any other Keras layer params
   ))
