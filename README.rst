@@ -1,7 +1,7 @@
 BERT for TensorFlow v2
 ======================
 
-|Build Status| |Coverage Status| |Version Status| |Python Versions|
+|Build Status| |Coverage Status| |Version Status| |Python Versions| |Downloads|
 
 This repo contains a `TensorFlow 2.0`_ `Keras`_ implementation of `google-research/bert`_
 with support for loading of the original `pre-trained weights`_,
@@ -153,4 +153,4 @@ Resources
 .. |Version Status| image:: https://badge.fury.io/py/bert-for-tf2.svg
    :target: https://badge.fury.io/py/bert-for-tf2
 .. |Python Versions| image:: https://img.shields.io/pypi/pyversions/bert-for-tf2.svg
-
+.. |Downloads| image:: https://img.shields.io/pypi/dm/bert-for-tf2.svg
