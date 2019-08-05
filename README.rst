@@ -154,4 +154,5 @@ Resources
    :target: https://badge.fury.io/py/bert-for-tf2
 .. |Python Versions| image:: https://img.shields.io/pypi/pyversions/bert-for-tf2.svg
 .. |Downloads| image:: https://img.shields.io/pypi/dm/bert-for-tf2.svg
-.. |Twitter| image:: https://img.shields.io/twitter/follow/siddhadev?logo=twitter&label=follow&style=
+.. |Twitter| image:: https://img.shields.io/twitter/follow/siddhadev?logo=twitter&label=&style=
+   :target: https://twitter.com/intent/user?screen_name=siddhadev
