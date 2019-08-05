@@ -15,8 +15,8 @@ common Keras boilerplate code (related to passing model and layer configuration 
 
 `bert-for-tf2`_ should work with both `TensorFlow 2.0`_ and `TensorFlow 1.14`_ or newer.
 
-NEWS
-----
+NEWS |Twitter|
+--------------
 
  - **25.Jul.2019** - there are now two colab notebooks under ``examples/`` showing how to
    fine-tune an IMDB Movie Reviews sentiment classifier from pre-trained BERT weights
@@ -154,3 +154,4 @@ Resources
    :target: https://badge.fury.io/py/bert-for-tf2
 .. |Python Versions| image:: https://img.shields.io/pypi/pyversions/bert-for-tf2.svg
 .. |Downloads| image:: https://img.shields.io/pypi/dm/bert-for-tf2.svg
+.. |Twitter| image:: https://img.shields.io/twitter/follow/siddhadev?logo=twitter&label=&style=
