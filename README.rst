@@ -96,17 +96,18 @@ now you can use the BERT layer in your Keras model like this:
   l_input_ids      = keras.layers.Input(shape=(max_seq_len,), dtype='int32')
   l_token_type_ids = keras.layers.Input(shape=(max_seq_len,), dtype='int32')
 
-  output = l_bert([l_input_ids, l_token_type_ids])  # [batch_size, max_seq_len, hidden_size]
+  # using the default token_type/segment id 0
+  output = l_bert(l_input_ids)                              # output: [batch_size, max_seq_len, hidden_size]
+  model = keras.Model(inputs=[l_input_ids], outputs=output)
+  model.build(input_shape=(None, max_seq_len))
 
-and build (or compile) your model:
-
-.. code:: python
-
+  # provide a custom token_type/segment id as a layer input
+  output = l_bert([l_input_ids, l_token_type_ids])          # [batch_size, max_seq_len, hidden_size]
   model = keras.Model(inputs=[l_input_ids, l_token_type_ids], outputs=output)
   model.build(input_shape=[(None, max_seq_len), (None, max_seq_len)])
 
-
-before loading the original pre-trained weights into the BERT layer:
+and once the model has been build or compiled, the original pre-trained weights
+can be loaded in the BERT layer:
 
 .. code:: python
 
