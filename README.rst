@@ -98,7 +98,7 @@ now you can use the BERT layer in your Keras model like this:
 
   # using the default token_type/segment id 0
   output = l_bert(l_input_ids)                              # output: [batch_size, max_seq_len, hidden_size]
-  model = keras.Model(inputs=[l_input_ids], outputs=output)
+  model = keras.Model(inputs=l_input_ids, outputs=output)
   model.build(input_shape=(None, max_seq_len))
 
   # provide a custom token_type/segment id as a layer input
