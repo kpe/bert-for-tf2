@@ -73,21 +73,16 @@ or by using the ``bert_config.json`` from a `pre-trained google model`_:
 
 .. code:: python
 
-  import os
   import tensorflow as tf
-  from tensorflow.python import keras
+  from tensorflow import keras
+
   from bert import BertModelLayer
-  from bert.loader import StockBertConfig, load_stock_weights
+  from bert import params_from_pretrained_ckpt
+  from bert import load_stock_weights
 
   model_dir = ".models/uncased_L-12_H-768_A-12"
 
-  bert_config_file = os.path.join(model_dir, "bert_config.json")
-  bert_ckpt_file   = os.path.join(model_dir, "bert_model.ckpt")
-
-  with tf.io.gfile.GFile(bert_config_file, "r") as reader:
-    stock_params = StockBertConfig.from_json_string(reader.read())
-    bert_params  = stock_params.to_bert_model_layer_params()
-
+  bert_params = params_from_pretrained_ckpt(model_dir)
   l_bert = BertModelLayer.from_params(bert_params, name="bert")
 
 
@@ -95,7 +90,7 @@ now you can use the BERT layer in your Keras model like this:
 
 .. code:: python
 
-  from tensorflow.python import keras
+  from tensorflow import keras
 
   max_seq_len = 128
   l_input_ids      = keras.layers.Input(shape=(max_seq_len,), dtype='int32')
@@ -115,8 +110,9 @@ before loading the original pre-trained weights into the BERT layer:
 
 .. code:: python
 
-  from bert.loader import load_stock_weights
+  from bert import load_stock_weights
 
+  bert_ckpt_file   = os.path.join(model_dir, "bert_model.ckpt")
   load_stock_weights(l_bert, bert_ckpt_file)
 
 **N.B.** see `tests/test_bert_activations.py`_ for a complete example.
