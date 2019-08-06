@@ -127,9 +127,9 @@ def load_stock_weights(bert: BertModelLayer, ckpt_file):
     assert tf.compat.v1.train.checkpoint_exists(ckpt_file), "Checkpoint does not exist: {}".format(ckpt_file)
     ckpt_reader = tf.train.load_checkpoint(ckpt_file)
 
-    re_bert = re.compile(r'(.*)/embeddings/word_embeddings/embeddings:0')
+    re_bert = re.compile(r'(.*)/(embeddings|encoder)/(.+):0')
     match = re_bert.match(bert.weights[0].name)
-    assert match, "Unexpected bert layer: {}".format(bert)
+    assert match, "Unexpected bert layer: {} weight:{}".format(bert, bert.weights[0].name)
 
     bert_prefix = match.group(1)
 
