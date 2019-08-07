@@ -8,9 +8,14 @@ from __future__ import absolute_import, division, print_function
 
 import unittest
 
+import random
+
 import bert
 
+import numpy as np
 import tensorflow as tf
+from tensorflow import keras
+
 
 tf.enable_eager_execution()
 
@@ -23,3 +28,6 @@ class TestAttention(unittest.TestCase):
                                                        )
         print(am)  # [batch_size, from_seq_len, seq_len]
 
+    def test_compute_shape(self):
+        l_att = bert.AttentionLayer(num_heads=2, size_per_head=2)
+        l_att.compute_output_shape(input_shape=(16, 8, 2))
