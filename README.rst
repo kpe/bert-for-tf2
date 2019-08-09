@@ -20,7 +20,7 @@ NEWS
 
  - **25.Jul.2019** - there are now two colab notebooks under ``examples/`` showing how to
    fine-tune an IMDB Movie Reviews sentiment classifier from pre-trained BERT weights
-   using an adapter-BERT model architecture on a GPU or TPU in Google Colab.
+   using an `adapter-BERT`_ model architecture on a GPU or TPU in Google Colab.
 
  - **28.Jun.2019** - v.0.3.0 supports `adapter-BERT`_ (`google-research/adapter-bert`_)
    for "Parameter-Efficient Transfer Learning for NLP", i.e. fine-tuning small overlay adapter
@@ -105,6 +105,13 @@ now you can use the BERT layer in your Keras model like this:
   output = l_bert([l_input_ids, l_token_type_ids])          # [batch_size, max_seq_len, hidden_size]
   model = keras.Model(inputs=[l_input_ids, l_token_type_ids], outputs=output)
   model.build(input_shape=[(None, max_seq_len), (None, max_seq_len)])
+
+if you choose to use `adapter-BERT`_ by setting the `adapter_size` parameter,
+you would also like to freeze all the original BERT layers by calling:
+
+.. code:: python
+
+  l_bert.apply_adapter_freeze()
 
 and once the model has been build or compiled, the original pre-trained weights
 can be loaded in the BERT layer:

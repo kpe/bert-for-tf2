@@ -5,7 +5,8 @@
 
 from __future__ import absolute_import, division, print_function
 
-from tensorflow.python import keras
+from tensorflow import keras
+import params_flow as pf
 
 from bert.layer import Layer
 from bert.embeddings import BertEmbeddingsLayer
@@ -53,6 +54,15 @@ class BertModelLayer(Layer):
         )
 
         super(BertModelLayer, self).build(input_shape)
+
+    def apply_adapter_freeze(self):
+        """ Should be called once the model has been built to freeze
+        all bet the adapter and layer normalization layers in BERT.
+        """
+        if self.params.adapter_size is not None:
+            def freeze_selector(layer):
+                return layer.name not in ["adapter-up", "adapter-down", "LayerNorm"]
+            pf.utils.freeze_leaf_layers(self, freeze_selector)
 
     def call(self, inputs, mask=None, training=None):
         if mask is None:

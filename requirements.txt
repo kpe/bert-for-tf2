@@ -1,5 +1,5 @@
 
-# tensorflow >=1.14.0rc # (should be installed manually)
+# tensorflow >=1.14.0 # (should be installed manually)
 
 py-params   >= 0.6.4
-params-flow >= 0.3.0
+params-flow >= 0.5.0
