@@ -123,7 +123,7 @@ def params_from_pretrained_ckpt(bert_ckpt_dir):
 
 
 def _checkpoint_exists(ckpt_path):
-    cktp_files = tf.io.gfile.glob(ckpt_path+"*")
+    cktp_files = tf.io.gfile.glob(ckpt_path + "*")
     return len(cktp_files) > 0
 
 
