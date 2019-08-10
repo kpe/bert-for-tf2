@@ -122,9 +122,14 @@ def params_from_pretrained_ckpt(bert_ckpt_dir):
     return bert_params
 
 
+def _checkpoint_exists(ckpt_path):
+    cktp_files = tf.io.gfile.glob(ckpt_path+"*")
+    return len(cktp_files) > 0
+
+
 def load_stock_weights(bert: BertModelLayer, ckpt_file):
     assert isinstance(bert, BertModelLayer), "Expecting a BertModelLayer instance as first argument"
-    assert tf.compat.v1.train.checkpoint_exists(ckpt_file), "Checkpoint does not exist: {}".format(ckpt_file)
+    assert _checkpoint_exists(ckpt_file), "Checkpoint does not exist: {}".format(ckpt_file)
     ckpt_reader = tf.train.load_checkpoint(ckpt_file)
 
     re_bert = re.compile(r'(.*)/(embeddings|encoder)/(.+):0')
