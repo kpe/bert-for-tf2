@@ -97,3 +97,24 @@ class AbstractBertTest(unittest.TestCase):
         print("mini_bert save_path", save_path)
         print("\n\t".join([""] + os.listdir(model_dir)))
         return model_dir
+
+    def prepare_input_batch(self, input_str_batch, tokenizer, max_seq_len):
+        input_ids_batch    = []
+        token_type_ids_batch = []
+        for input_str in input_str_batch:
+            input_tokens = tokenizer.tokenize(input_str)
+            input_tokens = ["[CLS]"] + input_tokens + ["[SEP]"]
+
+            print("input_tokens len:", len(input_tokens))
+
+            input_ids      = tokenizer.convert_tokens_to_ids(input_tokens)
+            input_ids      = input_ids             + [0]*(max_seq_len - len(input_tokens))
+            token_type_ids = [0]*len(input_tokens) + [0]*(max_seq_len - len(input_tokens))
+
+            input_ids_batch.append(input_ids)
+            token_type_ids_batch.append(token_type_ids)
+
+        input_ids      = np.array(input_ids_batch, dtype=np.int32)
+        token_type_ids = np.array(token_type_ids_batch, dtype=np.int32)
+
+        return input_ids, token_type_ids
