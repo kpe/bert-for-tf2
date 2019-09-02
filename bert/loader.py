@@ -127,10 +127,18 @@ def _checkpoint_exists(ckpt_path):
     return len(cktp_files) > 0
 
 
-def load_stock_weights(bert: BertModelLayer, ckpt_file):
+def load_stock_weights(bert: BertModelLayer, ckpt_path):
+    """
+    Use this method to load the weights from a pre-trained BERT checkpoint into a bert layer.
+
+    :param bert: a BertModelLayer instance within a built keras model.
+    :param ckpt_path: checkpoint path, i.e. `uncased_L-12_H-768_A-12/bert_model.ckpt`
+    :return: list of weights with mismatched shapes. This can be used to extend
+    the segment/token_type embeddings.
+    """
     assert isinstance(bert, BertModelLayer), "Expecting a BertModelLayer instance as first argument"
-    assert _checkpoint_exists(ckpt_file), "Checkpoint does not exist: {}".format(ckpt_file)
-    ckpt_reader = tf.train.load_checkpoint(ckpt_file)
+    assert _checkpoint_exists(ckpt_path), "Checkpoint does not exist: {}".format(ckpt_path)
+    ckpt_reader = tf.train.load_checkpoint(ckpt_path)
 
     re_bert = re.compile(r'(.*)/(embeddings|encoder)/(.+):0')
     match = re_bert.match(bert.weights[0].name)
@@ -140,6 +148,7 @@ def load_stock_weights(bert: BertModelLayer, ckpt_file):
 
     skip_count = 0
     weight_value_tuples = []
+    skipped_weight_value_tuples = []
 
     bert_params = bert.weights
     param_values = keras.backend.batch_get_value(bert.weights)
@@ -150,14 +159,21 @@ def load_stock_weights(bert: BertModelLayer, ckpt_file):
             ckpt_value = ckpt_reader.get_tensor(stock_name)
 
             if param_value.shape != ckpt_value.shape:
-                raise ValueError("Layer weight shape:[{}] not compatible "
-                                 "with checkpoint:[{}] shape:{}".format(param.shape, stock_name, ckpt_value.shape))
+                print("loader: Skipping weight:[{}] as the weight shape:[{}] is not compatible "
+                      "with the checkpoint:[{}] shape:{}".format(param.name, param.shape,
+                                                                 stock_name, ckpt_value.shape))
+                skipped_weight_value_tuples.append((param, ckpt_value))
+                continue
 
             weight_value_tuples.append((param, ckpt_value))
         else:
-            print("loader: No value for:[{}], i.e.:[{}] in:[{}]".format(param.name, stock_name, ckpt_file))
+            print("loader: No value for:[{}], i.e.:[{}] in:[{}]".format(param.name, stock_name, ckpt_path))
             skip_count += 1
     keras.backend.batch_set_value(weight_value_tuples)
 
-    print("Done loading {} BERT weights from: {} into {} (prefix:{}). Count of weights not found in the checkpoint was: {}".format(
-          len(weight_value_tuples), ckpt_file, bert, bert_prefix, skip_count))
+    print("Done loading {} BERT weights from: {} into {} (prefix:{}). "
+          "Count of weights not found in the checkpoint was: [{}]. "
+          "Count of weights with mismatched shape: [{}]".format(
+              len(weight_value_tuples), ckpt_path, bert, bert_prefix, skip_count, len(skipped_weight_value_tuples)))
+
+    return skipped_weight_value_tuples  # (bert_weight, value_from_ckpt)

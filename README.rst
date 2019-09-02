@@ -18,6 +18,9 @@ common Keras boilerplate code (related to passing model and layer configuration 
 NEWS
 ----
 
+ - **02.Sep.2019** - support for extending the token type embeddings of a pre-trained model
+   by returning the mismatched weights in ``load_stock_weights()`` (see ``tests/test_extend_segments.py``).
+
  - **25.Jul.2019** - there are now two colab notebooks under ``examples/`` showing how to
    fine-tune an IMDB Movie Reviews sentiment classifier from pre-trained BERT weights
    using an `adapter-BERT`_ model architecture on a GPU or TPU in Google Colab.
