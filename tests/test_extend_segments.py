@@ -25,18 +25,6 @@ from .test_common import AbstractBertTest, MiniBertFactory
 
 class TestExtendSegmentVocab(AbstractBertTest):
 
-    def layer_to_model(self, l_bert):
-        max_seq_len = 1
-        l_input_ids      = keras.layers.Input(shape=(max_seq_len,), dtype='int32', name="input_ids")
-        l_token_type_ids = keras.layers.Input(shape=(max_seq_len,), dtype='int32', name="token_type_ids")
-
-        output = l_bert([l_input_ids, l_token_type_ids])
-
-        model = keras.Model(inputs=[l_input_ids, l_token_type_ids], outputs=output)
-        model.build(input_shape=[(None, max_seq_len),
-                                 (None, max_seq_len)])
-        return model, l_bert
-
     def test_extend_pretrained_segments(self):
 
         model_dir = tempfile.TemporaryDirectory().name
@@ -53,8 +41,7 @@ class TestExtendSegmentVocab(AbstractBertTest):
         l_bert = bert.BertModelLayer.from_params(bert_params)
 
         # we dummy call the layer once in order to instantiate the weights
-        # l_bert([[[1]], [[1]]])
-        model, _ = self.layer_to_model(l_bert)
+        l_bert([[[1]], [[1]]])
 
         #
         # - load the weights from a pre-trained model,
