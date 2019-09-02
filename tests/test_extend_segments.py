@@ -19,10 +19,23 @@ from tensorflow import keras
 
 from .test_common import AbstractBertTest, MiniBertFactory
 
-tf.enable_eager_execution()
+#tf.enable_eager_execution()
+#tf.disable_eager_execution()
 
 
 class TestExtendSegmentVocab(AbstractBertTest):
+
+    def layer_to_model(self, l_bert):
+        max_seq_len = 1
+        l_input_ids      = keras.layers.Input(shape=(max_seq_len,), dtype='int32', name="input_ids")
+        l_token_type_ids = keras.layers.Input(shape=(max_seq_len,), dtype='int32', name="token_type_ids")
+
+        output = l_bert([l_input_ids, l_token_type_ids])
+
+        model = keras.Model(inputs=[l_input_ids, l_token_type_ids], outputs=output)
+        model.build(input_shape=[(None, max_seq_len),
+                                 (None, max_seq_len)])
+        return model, l_bert
 
     def test_extend_pretrained_segments(self):
 
@@ -40,7 +53,8 @@ class TestExtendSegmentVocab(AbstractBertTest):
         l_bert = bert.BertModelLayer.from_params(bert_params)
 
         # we dummy call the layer once in order to instantiate the weights
-        l_bert([[[1]], [[1]]])
+        # l_bert([[[1]], [[1]]])
+        model, _ = self.layer_to_model(l_bert)
 
         #
         # - load the weights from a pre-trained model,
@@ -58,7 +72,12 @@ class TestExtendSegmentVocab(AbstractBertTest):
                 new_value = np.concatenate([value, new_segment_embeddings], axis=0)
                 keras.backend.batch_set_value([(weight, new_value)])
 
-        tte = l_bert.embeddings_layer.token_type_embeddings_layer.weights[0].numpy()
+        tte = l_bert.embeddings_layer.token_type_embeddings_layer.weights[0]
+
+        if not tf.executing_eagerly():
+            with tf.keras.backend.get_session() as sess:
+                tte, = sess.run((tte, ))
+
         self.assertTrue(np.allclose(seg0_emb, tte[0], 1e-6))
         self.assertFalse(np.allclose(seg0_emb, tte[1], 1e-6))
         self.assertTrue(np.allclose(seg0_emb, tte[2], 1e-6))
@@ -66,6 +85,6 @@ class TestExtendSegmentVocab(AbstractBertTest):
 
         bert_params.token_type_vocab_size = 4
         print("token_type_vocab_size", bert_params.token_type_vocab_size)
-        print(l_bert.embeddings_layer.trainable_weights[1].numpy())
+        print(l_bert.embeddings_layer.trainable_weights[1])
 
 
