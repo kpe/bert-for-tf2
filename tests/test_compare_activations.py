@@ -23,6 +23,7 @@ from .test_common import AbstractBertTest, MiniBertFactory
 class CompareBertActivationsTest(AbstractBertTest):
 
     def setUp(self):
+        tf.reset_default_graph()
         keras.backend.clear_session()
         tf.disable_eager_execution()
         print("Eager Execution:", tf.executing_eagerly())

@@ -19,9 +19,14 @@ import bert
 
 from .test_common import AbstractBertTest, MiniBertFactory
 
-tf.enable_eager_execution()
 
 class AdapterFreezeTest(AbstractBertTest):
+
+    def setUp(self) -> None:
+        tf.reset_default_graph()
+        tf.enable_eager_execution()
+        print("Eager Execution:", tf.executing_eagerly())
+
 
     def test_adapter_freezing(self):
         bert_params = bert.BertModelLayer.Params(hidden_size=32,
@@ -60,7 +65,6 @@ class AdapterFreezeTest(AbstractBertTest):
         for weight in model.trainable_weights:
             print(weight.name, weight.shape)
 
-
     def test_freeze(self):
         model_dir = tempfile.TemporaryDirectory().name
         os.makedirs(model_dir)
@@ -83,7 +87,6 @@ class AdapterFreezeTest(AbstractBertTest):
             l_bert,
         ])
 
-
         model.build(input_shape=(None, max_seq_len))
 
         model.summary()
@@ -100,7 +103,8 @@ class AdapterFreezeTest(AbstractBertTest):
             orig_weight_values.append(weight.numpy())
 
         model.compile(optimizer=keras.optimizers.Adam(),
-                      loss=keras.losses.mean_squared_error)
+                      loss=keras.losses.mean_squared_error,
+                      run_eagerly=True)
 
         orig_pred = model.predict(input_ids)
         model.fit(x=input_ids, y=np.zeros_like(orig_pred),

@@ -18,6 +18,9 @@ common Keras boilerplate code (related to passing model and layer configuration 
 NEWS
 ----
 
+ - **03.Sep.2019** - walkthrough on fine tuning with adapter-BERT and storing the
+   fine tuned fraction of the weights in a separate checkpoint (see ``tests/test_adapter_finetune.py``).
+
  - **02.Sep.2019** - support for extending the token type embeddings of a pre-trained model
    by returning the mismatched weights in ``load_stock_weights()`` (see ``tests/test_extend_segments.py``).
 

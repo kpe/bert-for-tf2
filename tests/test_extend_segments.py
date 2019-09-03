@@ -25,6 +25,11 @@ from .test_common import AbstractBertTest, MiniBertFactory
 
 class TestExtendSegmentVocab(AbstractBertTest):
 
+    def setUp(self) -> None:
+        tf.reset_default_graph()
+        tf.enable_eager_execution()
+        print("Eager Execution:", tf.executing_eagerly())
+
     def test_extend_pretrained_segments(self):
 
         model_dir = tempfile.TemporaryDirectory().name

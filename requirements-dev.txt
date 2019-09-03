@@ -3,4 +3,4 @@ docutils
 nose
 nose-exclude
 Pygments
-pep8
+pycodestyle

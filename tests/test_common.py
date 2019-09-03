@@ -22,7 +22,10 @@ from bert.tokenization import FullTokenizer, validate_case_matches_checkpoint
 class MiniBertFactory:
 
     @staticmethod
-    def create_mini_bert_weights(model_dir):
+    def create_mini_bert_weights(model_dir=None):
+        model_dir = model_dir if model_dir is not None else tempfile.TemporaryDirectory().name
+        os.makedirs(model_dir, exist_ok=True)
+
         from bert.loader import StockBertConfig
 
         bert_tokens = ["[PAD]", "[UNK]", "[CLS]", "[SEP]", "[MASK]"]

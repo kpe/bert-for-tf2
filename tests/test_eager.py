@@ -15,12 +15,21 @@ from bert import loader, BertModelLayer
 
 from .test_common import AbstractBertTest
 
-tf.enable_eager_execution()
-
-print("Eager Execution:", tf.executing_eagerly())
-
 
 class LoaderTest(AbstractBertTest):
+
+    def setUp(self) -> None:
+        tf.reset_default_graph()
+        tf.enable_eager_execution()
+        print("Eager Execution:", tf.executing_eagerly())
+
+    def test_coverage_improve(self):
+        for act in ["relu", "gelu", "linear", None]:
+            BertModelLayer.get_activation(act)
+        try:
+            BertModelLayer.get_activation("None")
+        except ValueError:
+            pass
 
     def test_eager_loading(self):
         print("Eager Execution:", tf.executing_eagerly())
@@ -41,8 +50,9 @@ class LoaderTest(AbstractBertTest):
 
         model.build(input_shape=(None, 128))
         model.compile(optimizer=keras.optimizers.Adam(),
-            loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-            metrics=[keras.metrics.SparseCategoricalAccuracy(name="acc")])
+                      loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+                      metrics=[keras.metrics.SparseCategoricalAccuracy(name="acc")],
+                      run_eagerly=True)
 
         loader.load_stock_weights(bert, model_dir)
 
@@ -79,9 +89,9 @@ class LoaderTest(AbstractBertTest):
         model.summary()
 
         model.compile(optimizer=keras.optimizers.Adam(),
-            loss=[keras.losses.SparseCategoricalCrossentropy(from_logits=True)],
-            metrics=[keras.metrics.SparseCategoricalAccuracy()]
-        )
+                      loss=[keras.losses.SparseCategoricalCrossentropy(from_logits=True)],
+                      metrics=[keras.metrics.SparseCategoricalAccuracy()],
+                      run_eagerly = True)
 
         loader.load_stock_weights(bert, model_dir)
 
