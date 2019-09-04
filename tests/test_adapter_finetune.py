@@ -12,6 +12,8 @@ import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 
+import params_flow as pf
+
 import bert
 
 from .test_common import MiniBertFactory, AbstractBertTest
@@ -63,6 +65,32 @@ class TestAdapterFineTuning(AbstractBertTest):
         # build for a given max_seq_len
         model.build(input_shape=(None, max_seq_len))
         return model, l_bert
+
+    def test_regularization(self):
+        # create a BERT layer with config from the checkpoint
+        bert_params = bert.params_from_pretrained_ckpt(self.ckpt_dir)
+
+        max_seq_len = 12
+
+        model, l_bert = self.build_model(bert_params, max_seq_len=max_seq_len)
+        l_bert.apply_adapter_freeze()
+        model.summary()
+
+        kernel_regularizer = keras.regularizers.l2(0.01)
+        bias_regularizer   = keras.regularizers.l2(0.01)
+
+        pf.utils.add_dense_layer_loss(model,
+                                      kernel_regularizer=kernel_regularizer,
+                                      bias_regularizer=bias_regularizer)
+        # prepare the data
+        inputs, targets = ["hello world", "goodbye"], [1, 2]
+        tokens = [self.tokenizer.tokenize(toks) for toks in inputs]
+        tokens = [self.tokenizer.convert_tokens_to_ids(toks) for toks in tokens]
+        tokens = [toks + [0]*(max_seq_len - len(toks)) for toks in tokens]
+        x = np.array(tokens)
+        y = np.array(targets)
+        # fine tune
+        model.fit(x, y, epochs=3)
 
     def test_finetuning_workflow(self):
         # create a BERT layer with config from the checkpoint
