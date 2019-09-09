@@ -201,7 +201,7 @@ class TransformerEncoderLayer(Layer):
 
         # create all transformer encoder sub-layers
         self.encoder_layers = []
-        for layer_ndx in range(params.num_heads):
+        for layer_ndx in range(params.num_layers):
             encoder_layer = SingleTransformerEncoderLayer.from_params(
                 self.params,
                 name="layer_{}".format(layer_ndx),
