@@ -23,10 +23,9 @@ from .test_common import AbstractBertTest, MiniBertFactory
 class AdapterFreezeTest(AbstractBertTest):
 
     def setUp(self) -> None:
-        tf.reset_default_graph()
-        tf.enable_eager_execution()
+        tf.compat.v1.reset_default_graph()
+        tf.compat.v1.enable_eager_execution()
         print("Eager Execution:", tf.executing_eagerly())
-
 
     def test_adapter_freezing(self):
         bert_params = bert.BertModelLayer.Params(hidden_size=32,

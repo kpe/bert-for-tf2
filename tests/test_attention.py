@@ -17,9 +17,6 @@ import tensorflow as tf
 from tensorflow import keras
 
 
-tf.enable_eager_execution()
-
-
 class TestAttention(unittest.TestCase):
 
     def test_attention(self):

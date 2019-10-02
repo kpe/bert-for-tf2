@@ -17,7 +17,7 @@ env:
 # command to install dependencies
 install:
     - pip install --upgrade pip setuptools
-    - pip install 'tensorflow >= 1.14.0'
+    - pip install tensorflow
     - pip install -r requirements.txt
     - pip install -r requirements-dev.txt
 

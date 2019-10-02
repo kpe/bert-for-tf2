@@ -23,9 +23,9 @@ from .test_common import AbstractBertTest, MiniBertFactory
 class CompareBertActivationsTest(AbstractBertTest):
 
     def setUp(self):
-        tf.reset_default_graph()
+        tf.compat.v1.reset_default_graph()
         keras.backend.clear_session()
-        tf.disable_eager_execution()
+        tf.compat.v1.disable_eager_execution()
         print("Eager Execution:", tf.executing_eagerly())
 
     @staticmethod
