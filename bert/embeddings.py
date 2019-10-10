@@ -6,17 +6,16 @@
 from __future__ import absolute_import, division, print_function
 
 import tensorflow as tf
+import params_flow as pf
 
-from tensorflow.python import keras
-from tensorflow.python.keras import backend as K
+from tensorflow import keras
+from tensorflow.keras import backend as K
 
-from params_flow import LayerNormalization
-
-from bert.layer import Layer
+import bert
 
 
-class PositionEmbeddingLayer(Layer):
-    class Params(Layer.Params):
+class PositionEmbeddingLayer(bert.Layer):
+    class Params(bert.Layer.Params):
         max_position_embeddings  = 512
         hidden_size              = 128
 
@@ -58,7 +57,7 @@ class PositionEmbeddingLayer(Layer):
         return output
 
 
-class BertEmbeddingsLayer(Layer):
+class BertEmbeddingsLayer(bert.Layer):
     class Params(PositionEmbeddingLayer.Params):
         vocab_size               = None
         use_token_type           = True
@@ -67,9 +66,12 @@ class BertEmbeddingsLayer(Layer):
         hidden_size              = 768
         hidden_dropout           = 0.1
 
+        embedding_size           = None   # None for BERT, not None for ALBERT
+
     # noinspection PyUnusedLocal
     def _construct(self, params: Params):
         self.word_embeddings_layer       = None
+        self.word_embeddings_2_layer     = None   # for ALBERT
         self.token_type_embeddings_layer = None
         self.position_embeddings_layer   = None
         self.layer_norm_layer = None
@@ -90,10 +92,17 @@ class BertEmbeddingsLayer(Layer):
 
         self.word_embeddings_layer = keras.layers.Embedding(
             input_dim=self.params.vocab_size,
-            output_dim=self.params.hidden_size,
-            mask_zero=True,                        # =self.params.mask_zero,
+            output_dim=self.params.hidden_size if self.params.embedding_size is None else self.params.embedding_size,
+            mask_zero=True,  # =self.params.mask_zero,
             name="word_embeddings"
         )
+        if self.params.embedding_size is not None:
+            # ALBERT word embeddings projection
+            self.word_embeddings_2_layer = self.add_weight(name="word_embeddings_2",
+                                                           shape=[self.params.embedding_size,
+                                                                  self.params.hidden_size],
+                                                           dtype=K.floatx())
+
         if self.params.use_token_type:
             self.token_type_embeddings_layer = keras.layers.Embedding(
                 input_dim=self.params.token_type_vocab_size,
@@ -107,7 +116,7 @@ class BertEmbeddingsLayer(Layer):
                 name="position_embeddings"
             )
 
-        self.layer_norm_layer = LayerNormalization(name="LayerNorm")
+        self.layer_norm_layer = pf.LayerNormalization(name="LayerNorm")
         self.dropout_layer    = keras.layers.Dropout(rate=self.params.hidden_dropout)
 
         super(BertEmbeddingsLayer, self).build(input_shape)
@@ -122,6 +131,9 @@ class BertEmbeddingsLayer(Layer):
 
         input_ids = tf.cast(input_ids, dtype=tf.int32)
         embedding_output = self.word_embeddings_layer(input_ids)
+        if self.word_embeddings_2_layer is not None:  # ALBERT: project embedding to hidden_size
+            embedding_output = tf.matmul(embedding_output, self.word_embeddings_2_layer)
+
         if token_type_ids is not None:
             token_type_ids    = tf.cast(token_type_ids, dtype=tf.int32)
             embedding_output += self.token_type_embeddings_layer(token_type_ids)

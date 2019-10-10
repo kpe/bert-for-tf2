@@ -183,12 +183,16 @@ class TransformerEncoderLayer(Layer):
     """
     Multi-headed, multi-layer Transformer from 'Attention is All You Need' (arXiv: 1706.03762).
 
+    Implemented for BERT, with support for ALBERT (sharing encoder layer params).
+
     See also: https://github.com/tensorflow/tensor2tensor/blob/master/tensor2tensor/models/transformer.py
     """
 
     class Params(SingleTransformerEncoderLayer.Params):
         num_layers     = None
-        out_layer_ndxs = None  # [-1]
+        out_layer_ndxs = None   # [-1]
+
+        shared_layer   = False  # False for BERT, True for ALBERT
 
     def _construct(self, params: Params):
         self.encoder_layers = []
@@ -202,10 +206,13 @@ class TransformerEncoderLayer(Layer):
         # create all transformer encoder sub-layers
         self.encoder_layers = []
         for layer_ndx in range(params.num_layers):
-            encoder_layer = SingleTransformerEncoderLayer.from_params(
-                self.params,
-                name="layer_{}".format(layer_ndx),
-            )
+            if layer_ndx == 0 and self.params.shared_layer:  # ALBERT: share params
+                encoder_layer = SingleTransformerEncoderLayer.from_params(self.params, name="layer_shared")
+            else:
+                encoder_layer = SingleTransformerEncoderLayer.from_params(
+                    self.params,
+                    name="layer_{}".format(layer_ndx),
+                )
             self.encoder_layers.append(encoder_layer)
 
         super(TransformerEncoderLayer, self).build(input_shape)

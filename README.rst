@@ -17,6 +17,8 @@ common Keras boilerplate code (related to passing model and layer configuration 
 
 NEWS
 ----
+ - **10.Oct.2019** - support for `ALBERT`_ through the ``shared_layer=True``
+   and ``embedding_size=128`` params.
 
  - **03.Sep.2019** - walkthrough on fine tuning with adapter-BERT and storing the
    fine tuned fraction of the weights in a separate checkpoint (see ``tests/test_adapter_finetune.py``).
@@ -70,7 +72,10 @@ BERT in `bert-for-tf2` is implemented as a Keras layer. You could instantiate it
     intermediate_size        = 4*768,
     intermediate_activation  = "gelu",
 
-    adapter_size             = None,         # see arXiv:1902.00751
+    adapter_size             = None,         # see arXiv:1902.00751 (adapter-BERT)
+
+    shared_layer             = False,        # True for ALBERT (arXiv:1909.11942)
+    embedding_size           = None,         # None for BERT, wordpiece embedding size for ALBERT
 
     name                     = "bert"        # any other Keras layer params
   ))
@@ -135,6 +140,8 @@ Resources
 ---------
 
 - `BERT`_ - BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding
+- `adapter-BERT`_ - adapter-BERT: Parameter-Efficient Transfer Learning for NLP
+- `ALBERT`_ - ALBERT: A Lite BERT for Self-Supervised Learning of Language Representations
 - `google-research/bert`_ - the original BERT implementation
 - `kpe/params-flow`_ - A Keras coding style for reducing `Keras`_ boilerplate code in custom layers by utilizing `kpe/py-params`_
 
@@ -155,6 +162,7 @@ Resources
 
 .. _`google-research/adapter-bert`: https://github.com/google-research/adapter-bert/
 .. _`adapter-BERT`: https://arxiv.org/abs/1902.00751
+.. _`ALBERT`: https://arxiv.org/abs/1909.11942
 
 .. |Build Status| image:: https://travis-ci.org/kpe/bert-for-tf2.svg?branch=master
    :target: https://travis-ci.org/kpe/bert-for-tf2

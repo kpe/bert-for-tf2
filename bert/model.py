@@ -15,9 +15,11 @@ from bert.transformer import TransformerEncoderLayer
 
 class BertModelLayer(Layer):
     """
-    BERT Model (arXiv:1810.04805).
+    Implementation of BERT (arXiv:1810.04805), adapter-BERT (arXiv:1902.00751) and ALBERT (arXiv:1909.11942).
 
-    See: https://arxiv.org/pdf/1810.04805.pdf
+    See: https://arxiv.org/pdf/1810.04805.pdf - BERT
+         https://arxiv.org/pdf/1902.00751.pdf - adapter-BERT
+         https://arxiv.org/pdf/1909.11942.pdf - ALBERT
 
     """
     class Params(BertEmbeddingsLayer.Params,
@@ -26,10 +28,10 @@ class BertModelLayer(Layer):
 
     # noinspection PyUnusedLocal
     def _construct(self, params: Params):
-        self.embeddings_layer           = None
-        self.encoders_layer             = None
+        self.embeddings_layer = None
+        self.encoders_layer   = None
 
-        self.support_masking = True
+        self.support_masking  = True
 
     # noinspection PyAttributeOutsideInit
     def build(self, input_shape):
