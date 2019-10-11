@@ -9,9 +9,8 @@ and producing activations **numerically identical** to the one calculated by the
 
 `ALBERT`_ and `adapter-BERT`_ are also supported by setting the corresponding
 configuration parameters (``shared_layer=True``, ``embedding_size`` for `ALBERT`_
-and ``adapter_size`` for ``adapter-BERT``). Setting both will result in an adapter-ALBERT
-by sharing the BERT parameters across all layers and adapting them with a layer specific adapter.
-
+and ``adapter_size`` for `adapter-BERT`_). Setting both will result in an adapter-ALBERT
+by sharing the BERT parameters across all layers while adapting every layer with layer specific adapter.
 
 The implementation is build from scratch using only basic tensorflow operations,
 following the code in `google-research/bert/modeling.py`_
@@ -22,7 +21,7 @@ common Keras boilerplate code (related to passing model and layer configuration 
 
 NEWS
 ----
- - **11.Oct.2019** - support for loading of the released `ALBERT for Chinise`_
+ - **11.Oct.2019** - support for loading of the released `ALBERT for Chinese`_
    pre-trained weights.
 
  - **10.Oct.2019** - support for `ALBERT`_ through the ``shared_layer=True``
