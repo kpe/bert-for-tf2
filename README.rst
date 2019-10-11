@@ -170,7 +170,7 @@ Resources
 .. _`google-research/adapter-bert`: https://github.com/google-research/adapter-bert/
 .. _`adapter-BERT`: https://arxiv.org/abs/1902.00751
 .. _`ALBERT`: https://arxiv.org/abs/1909.11942
-.. _`ALBERT for Chinise`: https://github.com/brightmart/albert_zh
+.. _`ALBERT for Chinese`: https://github.com/brightmart/albert_zh
 
 
 .. |Build Status| image:: https://travis-ci.org/kpe/bert-for-tf2.svg?branch=master
