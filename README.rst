@@ -7,6 +7,11 @@ This repo contains a `TensorFlow 2.0`_ `Keras`_ implementation of `google-resear
 with support for loading of the original `pre-trained weights`_,
 and producing activations **numerically identical** to the one calculated by the original model.
 
+`ALBERT`_ and `adapter-BERT`_ are also supported by setting the corresponding
+configuration parameters (``shared_layer=True``, ``embedding_size`` for `ALBERT`_
+and ``adapter_size`` for ``adapter-BERT``). Setting both will result in an adapter-ALBERT
+by sharing the BERT parameters across all layers and adapting them with a layer specific adapter.
+
 
 The implementation is build from scratch using only basic tensorflow operations,
 following the code in `google-research/bert/modeling.py`_
@@ -17,6 +22,9 @@ common Keras boilerplate code (related to passing model and layer configuration 
 
 NEWS
 ----
+ - **11.Oct.2019** - support for loading of the released `ALBERT for Chinise`_
+   pre-trained weights.
+
  - **10.Oct.2019** - support for `ALBERT`_ through the ``shared_layer=True``
    and ``embedding_size=128`` params.
 
@@ -163,6 +171,8 @@ Resources
 .. _`google-research/adapter-bert`: https://github.com/google-research/adapter-bert/
 .. _`adapter-BERT`: https://arxiv.org/abs/1902.00751
 .. _`ALBERT`: https://arxiv.org/abs/1909.11942
+.. _`ALBERT for Chinise`: https://github.com/brightmart/albert_zh
+
 
 .. |Build Status| image:: https://travis-ci.org/kpe/bert-for-tf2.svg?branch=master
    :target: https://travis-ci.org/kpe/bert-for-tf2

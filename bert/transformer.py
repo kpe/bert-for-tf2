@@ -195,25 +195,25 @@ class TransformerEncoderLayer(Layer):
         shared_layer   = False  # False for BERT, True for ALBERT
 
     def _construct(self, params: Params):
-        self.encoder_layers = []
+        self.encoder_layers   = []
+        self.shared_layer     = None  # for ALBERT
         self.supports_masking = True
 
     def build(self, input_shape):
         self.input_spec = keras.layers.InputSpec(shape=input_shape)
 
-        params = self.params
-
         # create all transformer encoder sub-layers
-        self.encoder_layers = []
-        for layer_ndx in range(params.num_layers):
-            if layer_ndx == 0 and self.params.shared_layer:  # ALBERT: share params
-                encoder_layer = SingleTransformerEncoderLayer.from_params(self.params, name="layer_shared")
-            else:
+        if self.params.shared_layer:
+            # ALBERT: share params
+            self.shared_layer = SingleTransformerEncoderLayer.from_params(self.params, name="layer_shared")
+        else:
+            # BERT
+            for layer_ndx in range(self.params.num_layers):
                 encoder_layer = SingleTransformerEncoderLayer.from_params(
                     self.params,
                     name="layer_{}".format(layer_ndx),
                 )
-            self.encoder_layers.append(encoder_layer)
+                self.encoder_layers.append(encoder_layer)
 
         super(TransformerEncoderLayer, self).build(input_shape)
 
@@ -221,7 +221,8 @@ class TransformerEncoderLayer(Layer):
         layer_output = inputs
 
         layer_outputs = []
-        for encoder_layer in self.encoder_layers:
+        for layer_ndx in range(self.params.num_layers):
+            encoder_layer = self.encoder_layers[layer_ndx] if self.encoder_layers else self.shared_layer
             layer_input = layer_output
 
             layer_output = encoder_layer(layer_input, mask=mask, training=training)

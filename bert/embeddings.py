@@ -98,7 +98,7 @@ class BertEmbeddingsLayer(bert.Layer):
         )
         if self.params.embedding_size is not None:
             # ALBERT word embeddings projection
-            self.word_embeddings_2_layer = self.add_weight(name="word_embeddings_2",
+            self.word_embeddings_2_layer = self.add_weight(name="word_embeddings_2/embeddings",
                                                            shape=[self.params.embedding_size,
                                                                   self.params.hidden_size],
                                                            dtype=K.floatx())

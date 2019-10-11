@@ -40,13 +40,16 @@ class TestAdapterFineTuning(AbstractBertTest):
         bert_params = bert.params_from_pretrained_ckpt(self.ckpt_dir)
         model, l_bert = self.build_model(bert_params, 1)
         for weight in model.weights:
-            try:
-                name = bert.loader.map_to_stock_variable_name(weight.name, weight.name.split("/")[0])
-                stock_name = bert.loader.map_from_stock_variale_name(name)
-                self.assertEqual(name, stock_name)
-            except:
-                print(weight.name)
+            l_bert_prefix = bert.loader.bert_prefix(l_bert)
 
+            stock_name = bert.loader.map_to_stock_variable_name(weight.name, l_bert_prefix)
+
+            if stock_name is None:
+                print("No BERT stock weight for", weight.name)
+                continue
+
+            keras_name = bert.loader.map_from_stock_variale_name(stock_name, l_bert_prefix)
+            self.assertEqual(weight.name.split(":")[0], keras_name)
 
     @staticmethod
     def build_model(bert_params, max_seq_len):
@@ -56,7 +59,7 @@ class TestAdapterFineTuning(AbstractBertTest):
         model = keras.models.Sequential([
             l_bert,
             keras.layers.Lambda(lambda seq: seq[:, 0, :]),
-            keras.layers.Dense(3)
+            keras.layers.Dense(3, name="test_cls")
         ])
         model.compile(optimizer=keras.optimizers.Adam(),
                       loss=keras.losses.SparseCategoricalCrossentropy(),
