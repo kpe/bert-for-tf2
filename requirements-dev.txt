@@ -4,3 +4,4 @@ nose
 nose-exclude
 Pygments
 pycodestyle
+twine
