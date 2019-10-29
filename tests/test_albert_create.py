@@ -35,6 +35,7 @@ class AlbertTest(AbstractBertTest):
                                                  use_token_type=False,
 
                                                  embedding_size=16,  # using ALBERT instead of BERT
+                                                 project_embeddings_with_bias=False,
                                                  shared_layer=True,
                                                  )
 

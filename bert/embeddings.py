@@ -66,12 +66,18 @@ class BertEmbeddingsLayer(bert.Layer):
         hidden_size              = 768
         hidden_dropout           = 0.1
 
-        embedding_size           = None   # None for BERT, not None for ALBERT
+        embedding_size               = None   # None for BERT, not None for ALBERT
+        project_embeddings_with_bias = True   # in ALBERT - True for Google, False for brightmart/albert_zh
+        project_position_embeddings  = True   # in ALEBRT - True for Google, False for brightmart/albert_zh
+        #
+        # embedding_project_position - False would use hidden_size position embeddings as in brightmart/albert_zh
+        #
 
     # noinspection PyUnusedLocal
     def _construct(self, params: Params):
-        self.word_embeddings_layer       = None
-        self.word_embeddings_2_layer     = None   # for ALBERT
+        self.word_embeddings_layer        = None
+        self.word_embeddings_2_layer      = None   # for ALBERT
+        self.word_embeddings_2_layer_bias = None   # for ALBERT
         self.token_type_embeddings_layer = None
         self.position_embeddings_layer   = None
         self.layer_norm_layer = None
@@ -90,6 +96,9 @@ class BertEmbeddingsLayer(bert.Layer):
             input_ids_shape = input_shape
             self.input_spec = keras.layers.InputSpec(shape=input_ids_shape)
 
+        # use either hidden_size for BERT or embedding_size for ALBERT
+        embedding_size = self.params.hidden_size if self.params.embedding_size is None else self.params.embedding_size
+
         self.word_embeddings_layer = keras.layers.Embedding(
             input_dim=self.params.vocab_size,
             output_dim=self.params.hidden_size if self.params.embedding_size is None else self.params.embedding_size,
@@ -102,18 +111,26 @@ class BertEmbeddingsLayer(bert.Layer):
                                                            shape=[self.params.embedding_size,
                                                                   self.params.hidden_size],
                                                            dtype=K.floatx())
+            if self.params.project_embeddings_with_bias:
+                self.word_embeddings_2_layer_bias = self.add_weight(
+                    name="word_embeddings_2/bias",
+                    shape=[self.params.hidden_size],
+                    dtype=K.floatx())
+
+        position_embedding_size = embedding_size if self.params.project_position_embeddings else self.params.hidden_size
 
         if self.params.use_token_type:
             self.token_type_embeddings_layer = keras.layers.Embedding(
                 input_dim=self.params.token_type_vocab_size,
-                output_dim=self.params.hidden_size,
+                output_dim=position_embedding_size,
                 mask_zero=False,
                 name="token_type_embeddings"
             )
         if self.params.use_position_embeddings:
             self.position_embeddings_layer = PositionEmbeddingLayer.from_params(
                 self.params,
-                name="position_embeddings"
+                name="position_embeddings",
+                hidden_size=position_embedding_size
             )
 
         self.layer_norm_layer = pf.LayerNormalization(name="LayerNorm")
@@ -131,8 +148,16 @@ class BertEmbeddingsLayer(bert.Layer):
 
         input_ids = tf.cast(input_ids, dtype=tf.int32)
         embedding_output = self.word_embeddings_layer(input_ids)
-        if self.word_embeddings_2_layer is not None:  # ALBERT: project embedding to hidden_size
-            embedding_output = tf.matmul(embedding_output, self.word_embeddings_2_layer)
+
+        def project_embedding(emb):
+            if self.word_embeddings_2_layer is not None:  # ALBERT: project embedding to hidden_size
+                emb = tf.matmul(emb, self.word_embeddings_2_layer)
+                if self.word_embeddings_2_layer_bias is not None:
+                    emb += self.word_embeddings_2_layer_bias
+            return emb
+
+        if not self.params.project_position_embeddings:   # ALBERT: for brightmart/albert_zh weights
+            embedding_output = project_embedding(embedding_output)
 
         if token_type_ids is not None:
             token_type_ids    = tf.cast(token_type_ids, dtype=tf.int32)
@@ -140,7 +165,7 @@ class BertEmbeddingsLayer(bert.Layer):
 
         if self.position_embeddings_layer is not None:
             seq_len  = input_ids.shape.as_list()[1]
-            emb_size = self.params.hidden_size
+            emb_size = embedding_output.shape[-1]
 
             pos_embeddings = self.position_embeddings_layer(seq_len)
             # broadcast over all dimension except the last two [..., seq_len, width]
@@ -149,6 +174,9 @@ class BertEmbeddingsLayer(bert.Layer):
 
         embedding_output = self.layer_norm_layer(embedding_output)
         embedding_output = self.dropout_layer(embedding_output, training=training)
+
+        if self.params.project_position_embeddings:         # ALBERT: for google weights
+            embedding_output = project_embedding(embedding_output)
 
         return embedding_output   # [B, seq_len, hidden_size]
 

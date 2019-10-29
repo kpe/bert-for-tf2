@@ -11,9 +11,35 @@ import re
 import tensorflow as tf
 from tensorflow import keras
 
+import params_flow as pf
 import params
 
 from bert.model import BertModelLayer
+
+bert_models_google = {
+    "uncased_L-12_H-768_A-12":      "https://storage.googleapis.com/bert_models/2018_10_18/uncased_L-12_H-768_A-12.zip",
+    "uncased_L-24_H-1024_A-16":     "https://storage.googleapis.com/bert_models/2018_10_18/uncased_L-24_H-1024_A-16.zip",
+    "cased_L-12_H-768_A-12":        "https://storage.googleapis.com/bert_models/2018_10_18/cased_L-12_H-768_A-12.zip",
+    "cased_L-24_H-1024_A-16":       "https://storage.googleapis.com/bert_models/2018_10_18/cased_L-24_H-1024_A-16.zip",
+    "multi_cased_L-12_H-768_A-12":  "https://storage.googleapis.com/bert_models/2018_11_23/multi_cased_L-12_H-768_A-12.zip",
+    "multilingual_L-12_H-768_A-12": "https://storage.googleapis.com/bert_models/2018_11_03/multilingual_L-12_H-768_A-12.zip",
+    "chinese_L-12_H-768_A-12.zip":  "https://storage.googleapis.com/bert_models/2018_11_03/chinese_L-12_H-768_A-12.zip",
+    "wwm_uncased_L-24_H-1024_A-16": "https://storage.googleapis.com/bert_models/2019_05_30/wwm_uncased_L-24_H-1024_A-16.zip",
+    "wwm_cased_L-24_H-1024_A-16":   "https://storage.googleapis.com/bert_models/2019_05_30/wwm_cased_L-24_H-1024_A-16.zip",
+}
+
+
+def fetch_google_bert_model(model_name: str, fetch_dir: str):
+    if model_name not in bert_models_google:
+        raise ValueError("BERT model with name:[{}] not found, try one of:{}".format(
+            model_name, bert_models_google))
+    else:
+        fetch_url = bert_models_google[model_name]
+
+    fetched_file = pf.utils.fetch_url(fetch_url, fetch_dir=fetch_dir)
+    fetched_dir = pf.utils.unpack_archive(fetched_file)
+    fetched_dir = os.path.join(fetched_dir, model_name)
+    return fetched_dir
 
 
 def map_from_stock_variale_name(name, prefix="bert"):
@@ -21,7 +47,7 @@ def map_from_stock_variale_name(name, prefix="bert"):
     ns   = name.split("/")
     pns  = prefix.split("/")
 
-    assert ns[0] == "bert"
+    # assert ns[0] == "bert"
 
     name = "/".join(pns + ns[1:])
     ns = name.split("/")
@@ -133,6 +159,8 @@ def params_from_pretrained_ckpt(bert_ckpt_dir):
     with tf.io.gfile.GFile(bert_config_file, "r") as reader:
         bc = StockBertConfig.from_json_string(reader.read())
         bert_params = map_stock_config_to_params(bc)
+        bert_params.project_position_embeddings  = "ln_type" not in bc  # ALBERT: False for brightmart/weights
+        bert_params.project_embeddings_with_bias = "ln_type" not in bc  # ALBERT: False for brightmart/weights
 
     return bert_params
 
@@ -163,8 +191,11 @@ def load_stock_weights(bert: BertModelLayer, ckpt_path):
     assert _checkpoint_exists(ckpt_path), "Checkpoint does not exist: {}".format(ckpt_path)
     ckpt_reader = tf.train.load_checkpoint(ckpt_path)
 
+    stock_weights = set(ckpt_reader.get_variable_to_dtype_map().keys())
+
     prefix = bert_prefix(bert)
 
+    loaded_weights = set()
     skip_count = 0
     weight_value_tuples = []
     skipped_weight_value_tuples = []
@@ -185,6 +216,7 @@ def load_stock_weights(bert: BertModelLayer, ckpt_path):
                 continue
 
             weight_value_tuples.append((param, ckpt_value))
+            loaded_weights.add(stock_name)
         else:
             print("loader: No value for:[{}], i.e.:[{}] in:[{}]".format(param.name, stock_name, ckpt_path))
             skip_count += 1
@@ -194,5 +226,8 @@ def load_stock_weights(bert: BertModelLayer, ckpt_path):
           "Count of weights not found in the checkpoint was: [{}]. "
           "Count of weights with mismatched shape: [{}]".format(
               len(weight_value_tuples), ckpt_path, bert, prefix, skip_count, len(skipped_weight_value_tuples)))
+
+    print("Unused weights from checkpoint:",
+          "\n\t" + "\n\t".join(sorted(stock_weights.difference(loaded_weights))))
 
     return skipped_weight_value_tuples  # (bert_weight, value_from_ckpt)

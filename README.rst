@@ -21,8 +21,9 @@ common Keras boilerplate code (related to passing model and layer configuration 
 
 NEWS
 ----
- - **11.Oct.2019** - support for loading of the released `ALBERT for Chinese`_
-   pre-trained weights.
+ - **29.Oct.2019** - support for loading of the pre-trained ALBERT weights released by `google-research/albert`_  at `TFHub/albert`_.
+
+ - **11.Oct.2019** - support for loading of the pre-trained ALBERT weights released by `brightmart/albert_zh ALBERT for Chinese`_.
 
  - **10.Oct.2019** - support for `ALBERT`_ through the ``shared_layer=True``
    and ``embedding_size=128`` params.
@@ -143,13 +144,65 @@ can be loaded in the BERT layer:
 
 **N.B.** see `tests/test_bert_activations.py`_ for a complete example.
 
+FAQ
+---
+1. How to use BERT with the `google-research/bert` pre-trained weights?
+
+.. code:: python
+
+  model_name = "uncased_L-12_H-768_A-12"
+  model_dir = bert.fetch_google_bert_model(model_name, ".models")
+  model_ckpt = os.path.join(model_dir, "bert_model.ckpt")
+
+  bert_params = bert.params_from_pretrained_ckpt(model_dir)
+  l_bert = bert.BertModelLayer.from_params(bert_params, name="bert")
+
+  # use in Keras Model here, and call model.build()
+
+  bert.load_bert_weights(l_bert, model_ckpt)      # should be called after model.build()
+
+2. How to use ALBERT with the `google-research/albert` pre-trained weights?
+
+see `tests/nonci/test_albert.py <https://github.com/kpe/bert-for-tf2/blob/master/tests/nonci/test_albert.py>`_:
+
+.. code:: python
+
+  model_name = "albert_base"
+  model_dir    = bert.fetch_tfhub_albert_model(model_name, ".models")
+  model_params = bert.albert_params(model_name)
+  l_bert = bert.BertModelLayer.from_params(model_params, name="albert")
+
+  # use in Keras Model here, and call model.build()
+
+  bert.load_albert_weights(l_bert, albert_dir)      # should be called after model.build()
+
+3. How to use ALBERT with the `brightmatrt/albert_zh` pre-trained weights?
+
+see `tests/nonci/test_albert.py <https://github.com/kpe/bert-for-tf2/blob/master/tests/nonci/test_albert.py>`_:
+
+.. code:: python
+
+  model_name = "albert_base"
+  model_dir = bert.fetch_brightmart_albert_model(model_name, ".models")
+  model_ckpt = os.path.join(model_dir, "albert_model.ckpt")
+
+  bert_params = bert.params_from_pretrained_ckpt(albert_dir)
+  l_bert = bert.BertModelLayer.from_params(bert_params, name="bert")
+
+  # use in Keras Model here, and call model.build()
+
+  bert.load_albert_weights(l_bert, model_ckpt)      # should be called after model.build()
+
+
+
 Resources
 ---------
 
 - `BERT`_ - BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding
 - `adapter-BERT`_ - adapter-BERT: Parameter-Efficient Transfer Learning for NLP
 - `ALBERT`_ - ALBERT: A Lite BERT for Self-Supervised Learning of Language Representations
-- `google-research/bert`_ - the original BERT implementation
+- `google-research/bert`_ - the original `BERT`_ implementation
+- `google-research/albert`_ - the original `ALBERT`_ implementation by Google
 - `kpe/params-flow`_ - A Keras coding style for reducing `Keras`_ boilerplate code in custom layers by utilizing `kpe/py-params`_
 
 
@@ -170,8 +223,10 @@ Resources
 .. _`google-research/adapter-bert`: https://github.com/google-research/adapter-bert/
 .. _`adapter-BERT`: https://arxiv.org/abs/1902.00751
 .. _`ALBERT`: https://arxiv.org/abs/1909.11942
-.. _`ALBERT for Chinese`: https://github.com/brightmart/albert_zh
-
+.. _`brightmart/albert_zh ALBERT for Chinese`: https://github.com/brightmart/albert_zh
+.. _`google ALBERT weights`: https://github.com/google-research/google-research/tree/master/albert
+.. _`google-research/albert`: https://github.com/google-research/google-research/tree/master/albert
+.. _`TFHub/albert`: https://tfhub.dev/google/albert_base/1
 
 .. |Build Status| image:: https://travis-ci.org/kpe/bert-for-tf2.svg?branch=master
    :target: https://travis-ci.org/kpe/bert-for-tf2
