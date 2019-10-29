@@ -146,7 +146,7 @@ can be loaded in the BERT layer:
 
 FAQ
 ---
-1. How to use BERT with the `google-research/bert` pre-trained weights?
+1. How to use BERT with the `google-research/bert`_ pre-trained weights?
 
 .. code:: python
 
@@ -161,7 +161,7 @@ FAQ
 
   bert.load_bert_weights(l_bert, model_ckpt)      # should be called after model.build()
 
-2. How to use ALBERT with the `google-research/albert` pre-trained weights?
+2. How to use ALBERT with the `google-research/albert`_ pre-trained weights?
 
 see `tests/nonci/test_albert.py <https://github.com/kpe/bert-for-tf2/blob/master/tests/nonci/test_albert.py>`_:
 
@@ -176,7 +176,7 @@ see `tests/nonci/test_albert.py <https://github.com/kpe/bert-for-tf2/blob/master
 
   bert.load_albert_weights(l_bert, albert_dir)      # should be called after model.build()
 
-3. How to use ALBERT with the `brightmatrt/albert_zh` pre-trained weights?
+3. How to use ALBERT with the `brightmatrt/albert_zh`_ pre-trained weights?
 
 see `tests/nonci/test_albert.py <https://github.com/kpe/bert-for-tf2/blob/master/tests/nonci/test_albert.py>`_:
 
@@ -224,6 +224,7 @@ Resources
 .. _`adapter-BERT`: https://arxiv.org/abs/1902.00751
 .. _`ALBERT`: https://arxiv.org/abs/1909.11942
 .. _`brightmart/albert_zh ALBERT for Chinese`: https://github.com/brightmart/albert_zh
+.. _`brightmatrt/albert_zh`: https://github.com/brightmart/albert_zh
 .. _`google ALBERT weights`: https://github.com/google-research/google-research/tree/master/albert
 .. _`google-research/albert`: https://github.com/google-research/google-research/tree/master/albert
 .. _`TFHub/albert`: https://tfhub.dev/google/albert_base/1
