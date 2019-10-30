@@ -68,7 +68,7 @@ BERT in `bert-for-tf2` is implemented as a Keras layer. You could instantiate it
 
   from bert import BertModelLayer
 
-  l_bert = BertModelLayer(BertModelLayer.Params(
+  l_bert = BertModelLayer(**BertModelLayer.Params(
     vocab_size               = 16000,        # embedding params
     use_token_type           = True,
     use_position_embeddings  = True,
