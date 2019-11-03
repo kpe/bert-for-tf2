@@ -92,17 +92,12 @@ or by using the ``bert_config.json`` from a `pre-trained google model`_:
 
 .. code:: python
 
-  import tensorflow as tf
-  from tensorflow import keras
-
-  from bert import BertModelLayer
-  from bert import params_from_pretrained_ckpt
-  from bert import load_stock_weights
+  import bert
 
   model_dir = ".models/uncased_L-12_H-768_A-12"
 
-  bert_params = params_from_pretrained_ckpt(model_dir)
-  l_bert = BertModelLayer.from_params(bert_params, name="bert")
+  bert_params = bert.params_from_pretrained_ckpt(model_dir)
+  l_bert = bert.BertModelLayer.from_params(bert_params, name="bert")
 
 
 now you can use the BERT layer in your Keras model like this:
@@ -137,10 +132,10 @@ can be loaded in the BERT layer:
 
 .. code:: python
 
-  from bert import load_stock_weights
+  import bert
 
   bert_ckpt_file   = os.path.join(model_dir, "bert_model.ckpt")
-  load_stock_weights(l_bert, bert_ckpt_file)
+  bert.load_stock_weights(l_bert, bert_ckpt_file)
 
 **N.B.** see `tests/test_bert_activations.py`_ for a complete example.
 
