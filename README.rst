@@ -171,7 +171,7 @@ see `tests/nonci/test_albert.py <https://github.com/kpe/bert-for-tf2/blob/master
 
   bert.load_albert_weights(l_bert, albert_dir)      # should be called after model.build()
 
-3. How to use ALBERT with the `brightmatrt/albert_zh`_ pre-trained weights?
+3. How to use ALBERT with the `brightmart/albert_zh`_ pre-trained weights?
 
 see `tests/nonci/test_albert.py <https://github.com/kpe/bert-for-tf2/blob/master/tests/nonci/test_albert.py>`_:
 
@@ -198,8 +198,8 @@ Resources
 - `ALBERT`_ - ALBERT: A Lite BERT for Self-Supervised Learning of Language Representations
 - `google-research/bert`_ - the original `BERT`_ implementation
 - `google-research/albert`_ - the original `ALBERT`_ implementation by Google
+- `brightmart/albert_zh`_ - pre-trained `ALBERT`_ weights for Chinese
 - `kpe/params-flow`_ - A Keras coding style for reducing `Keras`_ boilerplate code in custom layers by utilizing `kpe/py-params`_
-
 
 .. _`kpe/params-flow`: https://github.com/kpe/params-flow
 .. _`kpe/py-params`: https://github.com/kpe/py-params
@@ -219,7 +219,7 @@ Resources
 .. _`adapter-BERT`: https://arxiv.org/abs/1902.00751
 .. _`ALBERT`: https://arxiv.org/abs/1909.11942
 .. _`brightmart/albert_zh ALBERT for Chinese`: https://github.com/brightmart/albert_zh
-.. _`brightmatrt/albert_zh`: https://github.com/brightmart/albert_zh
+.. _`brightmart/albert_zh`: https://github.com/brightmart/albert_zh
 .. _`google ALBERT weights`: https://github.com/google-research/google-research/tree/master/albert
 .. _`google-research/albert`: https://github.com/google-research/google-research/tree/master/albert
 .. _`TFHub/albert`: https://tfhub.dev/google/albert_base/1
