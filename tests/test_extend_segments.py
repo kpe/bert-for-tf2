@@ -46,7 +46,8 @@ class TestExtendSegmentVocab(AbstractBertTest):
         l_bert = bert.BertModelLayer.from_params(bert_params)
 
         # we dummy call the layer once in order to instantiate the weights
-        l_bert([[[1]], [[1]]])
+        l_bert([np.array([[1, 1, 0]]),
+                np.array([[1, 0, 0]])])#, mask=[[True, True, False]])
 
         #
         # - load the weights from a pre-trained model,

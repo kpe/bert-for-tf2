@@ -66,18 +66,21 @@ class BertEmbeddingsLayer(bert.Layer):
         hidden_size              = 768
         hidden_dropout           = 0.1
 
+        #
+        # ALBERT support - set embedding_size (or None for BERT)
+        #
         embedding_size               = None   # None for BERT, not None for ALBERT
         project_embeddings_with_bias = True   # in ALBERT - True for Google, False for brightmart/albert_zh
         project_position_embeddings  = True   # in ALEBRT - True for Google, False for brightmart/albert_zh
-        #
-        # embedding_project_position - False would use hidden_size position embeddings as in brightmart/albert_zh
-        #
+
+        extra_tokens_vocab_size  = None  # size of the extra (task specific) token vocabulary (using negative token ids)
 
     # noinspection PyUnusedLocal
     def _construct(self, params: Params):
         self.word_embeddings_layer        = None
         self.word_embeddings_2_layer      = None   # for ALBERT
         self.word_embeddings_2_layer_bias = None   # for ALBERT
+        self.extra_word_embeddings_layer  = None   # for task specific tokens (negative token ids)
         self.token_type_embeddings_layer = None
         self.position_embeddings_layer   = None
         self.layer_norm_layer = None
@@ -101,10 +104,18 @@ class BertEmbeddingsLayer(bert.Layer):
 
         self.word_embeddings_layer = keras.layers.Embedding(
             input_dim=self.params.vocab_size,
-            output_dim=self.params.hidden_size if self.params.embedding_size is None else self.params.embedding_size,
-            mask_zero=True,  # =self.params.mask_zero,
+            output_dim=embedding_size,
+            mask_zero=True,
             name="word_embeddings"
         )
+        if self.params.extra_tokens_vocab_size is not None:
+            self.extra_word_embeddings_layer = keras.layers.Embedding(
+                input_dim=self.params.extra_tokens_vocab_size + 1,  # +1 is for a <pad>/0 vector
+                output_dim=embedding_size,
+                mask_zero=True,
+                name="extra_word_embeddings"
+            )
+
         if self.params.embedding_size is not None:
             # ALBERT word embeddings projection
             self.word_embeddings_2_layer = self.add_weight(name="word_embeddings_2/embeddings",
@@ -147,7 +158,15 @@ class BertEmbeddingsLayer(bert.Layer):
             token_type_ids = None
 
         input_ids = tf.cast(input_ids, dtype=tf.int32)
-        embedding_output = self.word_embeddings_layer(input_ids)
+
+        if self.extra_word_embeddings_layer is not None:
+            extra_tokens = tf.where(input_ids < 0, -input_ids, tf.zeros_like(input_ids))
+            token_ids    = tf.where(input_ids >= 0, input_ids, tf.zeros_like(input_ids))
+            token_output = self.word_embeddings_layer(token_ids)
+            extra_output = self.extra_word_embeddings_layer(extra_tokens)
+            embedding_output = tf.where(tf.expand_dims(input_ids >= 0, -1), token_output, extra_output)
+        else:
+            embedding_output = self.word_embeddings_layer(input_ids)
 
         def project_embedding(emb):
             if self.word_embeddings_2_layer is not None:  # ALBERT: project embedding to hidden_size

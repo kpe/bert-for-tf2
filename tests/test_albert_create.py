@@ -69,3 +69,25 @@ class AlbertTest(AbstractBertTest):
         self.assertEqual(15, len(model.trainable_weights))
         for weight in model.trainable_weights:
             print(weight.name, weight.shape)
+
+    def test_albert_load_base_google_weights(self):  # for coverage mainly
+        albert_model_name = "albert_base"
+        albert_dir = bert.fetch_tfhub_albert_model(albert_model_name, ".models")
+        model_params = bert.albert_params(albert_model_name)
+
+        l_bert = bert.BertModelLayer.from_params(model_params, name="albert")
+
+        model = keras.models.Sequential([
+            keras.layers.InputLayer(input_shape=(8,), dtype=tf.int32, name="input_ids"),
+            l_bert,
+            keras.layers.Lambda(lambda x: x[:, 0, :]),
+            keras.layers.Dense(2),
+        ])
+        model.build(input_shape=(None, 8))
+        model.compile(optimizer=keras.optimizers.Adam(),
+            loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+            metrics=[keras.metrics.SparseCategoricalAccuracy(name="acc")])
+
+        bert.load_albert_weights(l_bert, albert_dir)
+
+        model.summary()

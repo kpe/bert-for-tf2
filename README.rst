@@ -21,6 +21,8 @@ common Keras boilerplate code (related to passing model and layer configuration 
 
 NEWS
 ----
+ - **04.Nov.2019** - support for extra (task specific) token embeddings using negative token ids.
+
  - **29.Oct.2019** - support for loading of the pre-trained ALBERT weights released by `google-research/albert`_  at `TFHub/albert`_.
 
  - **11.Oct.2019** - support for loading of the pre-trained ALBERT weights released by `brightmart/albert_zh ALBERT for Chinese`_.
