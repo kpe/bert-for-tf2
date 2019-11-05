@@ -35,9 +35,11 @@ class AlbertTest(AbstractBertTest):
                                                  use_token_type=False,
 
                                                  embedding_size=16,  # using ALBERT instead of BERT
-                                                 project_embeddings_with_bias=False,
+                                                 project_embeddings_with_bias=True,
                                                  shared_layer=True,
+                                                 extra_tokens_vocab_size=3,
                                                  )
+
 
         def to_model(bert_params):
             l_bert = bert.BertModelLayer.from_params(bert_params)
@@ -54,10 +56,10 @@ class AlbertTest(AbstractBertTest):
         model = to_model(bert_params)
         model.summary()
 
-        print(len(model.trainable_weights))
-        self.assertEqual(21, len(model.trainable_weights))
+        print("trainable_weights:", len(model.trainable_weights))
         for weight in model.trainable_weights:
             print(weight.name, weight.shape)
+        self.assertEqual(23, len(model.trainable_weights))
 
         # adapter-ALBERT  :-)
 
@@ -65,10 +67,16 @@ class AlbertTest(AbstractBertTest):
 
         model = to_model(bert_params)
         model.summary()
-        print(len(model.trainable_weights))
-        self.assertEqual(15, len(model.trainable_weights))
+
+        print("trainable_weights:", len(model.trainable_weights))
         for weight in model.trainable_weights:
             print(weight.name, weight.shape)
+        self.assertEqual(15, len(model.trainable_weights))
+
+        print("non_trainable_weights:", len(model.non_trainable_weights))
+        for weight in model.non_trainable_weights:
+            print(weight.name, weight.shape)
+        self.assertEqual(16, len(model.non_trainable_weights))
 
     def test_albert_load_base_google_weights(self):  # for coverage mainly
         albert_model_name = "albert_base"

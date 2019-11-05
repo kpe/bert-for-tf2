@@ -83,6 +83,12 @@ def map_to_stock_variable_name(name, prefix="bert"):
     if ns[1] == "embeddings":
         if ns[2] == "LayerNorm":
             return name
+        elif ns[2] == "word_embeddings_projector":
+            ns[2] = "word_embeddings_2"
+            if ns[3] == "projector":
+                ns[3] = "embeddings"
+                return "/".join(ns[:-1])
+            return "/".join(ns)
         else:
             return "/".join(ns[:-1])
     if ns[1] == "encoder":

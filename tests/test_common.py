@@ -16,7 +16,8 @@ import numpy as np
 
 from tensorflow.python import keras
 
-from bert.tokenization import FullTokenizer, validate_case_matches_checkpoint
+import bert
+from bert.tokenization import validate_case_matches_checkpoint
 
 
 class MiniBertFactory:
@@ -40,7 +41,7 @@ class MiniBertFactory:
             num_attention_heads          = 2,
             num_hidden_layers            = 2,
             type_vocab_size              = 2,
-            vocab_size                   = len(string.ascii_lowercase)*2 + len(bert_tokens)
+            vocab_size                   = len(string.ascii_lowercase)*2 + len(bert_tokens),
         )
 
         print("creating mini BERT at:", model_dir)
@@ -101,9 +102,18 @@ class AbstractBertTest(unittest.TestCase):
         print("\n\t".join([""] + os.listdir(model_dir)))
         return model_dir
 
-    def prepare_input_batch(self, input_str_batch, tokenizer, max_seq_len):
+    def prepare_input_batch(self, input_str_batch, tokenizer, max_seq_len, extra_token_count=0):
         input_ids_batch    = []
         token_type_ids_batch = []
+
+        def extra_token_gen():
+            token = 0
+            while True:
+                yield - ((token % extra_token_count) + 1)
+                token += 1
+
+        extra_token = extra_token_gen()
+
         for input_str in input_str_batch:
             input_tokens = tokenizer.tokenize(input_str)
             input_tokens = ["[CLS]"] + input_tokens + ["[SEP]"]
@@ -111,8 +121,10 @@ class AbstractBertTest(unittest.TestCase):
             print("input_tokens len:", len(input_tokens))
 
             input_ids      = tokenizer.convert_tokens_to_ids(input_tokens)
-            input_ids      = input_ids             + [0]*(max_seq_len - len(input_tokens))
-            token_type_ids = [0]*len(input_tokens) + [0]*(max_seq_len - len(input_tokens))
+            if extra_token_count > 0:
+                input_ids = [next(extra_token)] + input_ids + [next(extra_token)]
+            input_ids      = input_ids             + [0]*(max_seq_len - len(input_ids))
+            token_type_ids = [0]*len(input_ids)
 
             input_ids_batch.append(input_ids)
             token_type_ids_batch.append(token_type_ids)

@@ -38,6 +38,7 @@ class TestExtendSegmentVocab(AbstractBertTest):
         bert_params.extra_tokens_vocab_size = 3
 
         l_bert = bert.BertModelLayer.from_params(bert_params)
+
         # we dummy call the layer once in order to instantiate the weights
         l_bert([np.array([[1, 1, 0]]), np.array([[1, 0, 0]])], mask=[[True, True, False]])
 
@@ -45,4 +46,3 @@ class TestExtendSegmentVocab(AbstractBertTest):
         self.assertEqual(0, len(mismatched), "token_type embeddings should have mismatched shape")
 
         l_bert([np.array([[1, -3, 0]]), np.array([[1, 0, 0]])], mask=[[True, True, False]])
-

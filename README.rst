@@ -21,6 +21,9 @@ common Keras boilerplate code (related to passing model and layer configuration 
 
 NEWS
 ----
+
+ - **05.Nov.2019** - minor ALBERT word embeddings refactoring (``word_embeddings_2`` -> ``word_embeddings_projector``) and related parameter freezing fixes.
+
  - **04.Nov.2019** - support for extra (task specific) token embeddings using negative token ids.
 
  - **29.Oct.2019** - support for loading of the pre-trained ALBERT weights released by `google-research/albert`_  at `TFHub/albert`_.

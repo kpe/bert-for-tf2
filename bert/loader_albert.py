@@ -169,7 +169,7 @@ def fetch_tfhub_albert_model(albert_model: str, fetch_dir: str):
     return fetched_dir
 
 
-def map_to_stock_albert_variable_name(name, prefix="bert"):
+def map_to_tfhub_albert_variable_name(name, prefix="bert"):
 
     name = re.compile("encoder/layer_shared/intermediate/(?=kernel|bias)").sub(
         "encoder/transformer/group_0/inner_group_0/ffn_1/intermediate/dense/", name)
@@ -181,9 +181,9 @@ def map_to_stock_albert_variable_name(name, prefix="bert"):
     name = name.replace("encoder/layer_shared/output/LayerNorm", "encoder/transformer/group_0/inner_group_0/LayerNorm_1")
     name = name.replace("encoder/layer_shared/attention",        "encoder/transformer/group_0/inner_group_0/attention_1")
 
-    name = name.replace("embeddings/word_embeddings_2/embeddings",
+    name = name.replace("embeddings/word_embeddings_projector/projector",
                         "encoder/embedding_hidden_mapping_in/kernel")
-    name = name.replace("embeddings/word_embeddings_2/bias",
+    name = name.replace("embeddings/word_embeddings_projector/bias",
                         "encoder/embedding_hidden_mapping_in/bias")
 
     name = name.split(":")[0]
@@ -255,7 +255,7 @@ def load_albert_weights(bert: BertModelLayer, tfhub_model_path, tags=[]):
     bert_params = bert.weights
     param_values = keras.backend.batch_get_value(bert.weights)
     for ndx, (param_value, param) in enumerate(zip(param_values, bert_params)):
-        stock_name = map_to_stock_albert_variable_name(param.name, prefix)
+        stock_name = map_to_tfhub_albert_variable_name(param.name, prefix)
 
         if stock_name in stock_values:
             ckpt_value = stock_values[stock_name]
