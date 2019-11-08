@@ -16,10 +16,10 @@ from tensorflow import keras
 from bert import BertModelLayer, loader
 
 albert_models_tfhub = {
-    "albert_base":    "https://tfhub.dev/google/albert_base/1?tf-hub-format=compressed",
-    "albert_large":   "https://tfhub.dev/google/albert_large/1?tf-hub-format=compressed",
-    "albert_xlarge":  "https://tfhub.dev/google/albert_xlarge/1?tf-hub-format=compressed",
-    "albert_xxlarge": "https://tfhub.dev/google/albert_xxlarge/1?tf-hub-format=compressed",
+    "albert_base":    "https://tfhub.dev/google/albert_base/{version}?tf-hub-format=compressed",
+    "albert_large":   "https://tfhub.dev/google/albert_large/{version}?tf-hub-format=compressed",
+    "albert_xlarge":  "https://tfhub.dev/google/albert_xlarge/{version}?tf-hub-format=compressed",
+    "albert_xxlarge": "https://tfhub.dev/google/albert_xxlarge/{version}?tf-hub-format=compressed",
 }
 
 albert_models_brightmart = {
@@ -143,7 +143,7 @@ def fetch_brightmart_albert_model(model_name: str, fetch_dir: str):
     return fetched_dir
 
 
-def fetch_tfhub_albert_model(albert_model: str, fetch_dir: str):
+def fetch_tfhub_albert_model(albert_model: str, fetch_dir: str, version="2"):
     """
     Fetches a pre-trained ALBERT model from TFHub.
     :param albert_model: TFHub model URL or a model name like albert_base, albert_large, etc.
@@ -156,7 +156,7 @@ def fetch_tfhub_albert_model(albert_model: str, fetch_dir: str):
         raise ValueError("ALBERT model with name:[{}] not found in tfhub/google, try one of:{}".format(
             albert_model, albert_models_tfhub))
     else:
-        fetch_url = albert_models_tfhub[albert_model]
+        fetch_url = albert_models_tfhub[albert_model].format(version=version)
 
     name, version = urllib.parse.urlparse(fetch_url).path.split("/")[-2:]
     local_file_name = "{}.tar.gz".format(name)
