@@ -39,7 +39,7 @@ setup(name="bert-for-tf2",
 
       zip_safe=True,
       install_requires=install_requires,
-      python_requires=">=3.6",
+      python_requires=">=3.5",
       classifiers=[
           "Development Status :: 5 - Production/Stable",
           "License :: OSI Approved :: MIT License",
