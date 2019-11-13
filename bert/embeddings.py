@@ -196,7 +196,9 @@ class BertEmbeddingsLayer(bert.Layer):
             token_ids    = tf.where(input_ids >= 0, input_ids, tf.zeros_like(input_ids))
             token_output = self.word_embeddings_layer(token_ids)
             extra_output = self.extra_word_embeddings_layer(extra_tokens)
-            embedding_output = tf.where(tf.expand_dims(input_ids >= 0, -1), token_output, extra_output)
+            embedding_output = tf.where(tf.broadcast_to(tf.expand_dims(input_ids >= 0, -1),
+                                                        tf.shape(token_output)),
+                                        token_output, extra_output)
         else:
             embedding_output = self.word_embeddings_layer(input_ids)
 

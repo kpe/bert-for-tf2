@@ -42,7 +42,7 @@ class LoaderTest(AbstractBertTest):
         bert = BertModelLayer.from_params(bert_params, name="bert")
 
         model = keras.models.Sequential([
-            keras.layers.InputLayer(input_shape=(128,)),
+            keras.layers.InputLayer(input_shape=(32,)),
             bert,
             keras.layers.Lambda(lambda x: x[:, 0, :]),
             keras.layers.Dense(2)
