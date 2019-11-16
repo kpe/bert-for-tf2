@@ -71,7 +71,7 @@ class EmbeddingsProjector(bert.Layer):
     def build(self, input_shape):
         emb_shape = input_shape
         self.input_spec = keras.layers.InputSpec(shape=emb_shape)
-        tf.assert_equal(emb_shape[-1], self.params.embedding_size)
+        tf.compat.v2.assert_equal(emb_shape[-1], self.params.embedding_size)
 
         # ALBERT word embeddings projection
         self.projector_layer = self.add_weight(name="projector",
@@ -86,12 +86,12 @@ class EmbeddingsProjector(bert.Layer):
 
     def call(self, inputs, **kwargs):
         input_embedding = inputs
-        tf.assert_equal(tf.shape(input_embedding)[-1], self.params.embedding_size)
+        tf.compat.v2.assert_equal(tf.shape(input_embedding)[-1], self.params.embedding_size)
 
         # ALBERT: project embedding to hidden_size
         output = tf.matmul(input_embedding, self.projector_layer)
         if self.projector_bias_layer is not None:
-            output += self.projector_bias_layer
+            output = tf.add(output, self.projector_bias_layer)
 
         return output
 

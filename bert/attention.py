@@ -116,7 +116,7 @@ class AttentionLayer(Layer):
             attention_mask = tf.expand_dims(attention_mask, axis=1)  # [B, 1, F, T]
             # {1, 0} -> {0.0, -inf}
             adder = (1.0 - tf.cast(attention_mask, tf.float32)) * self.params.negative_infinity
-            attention_scores += adder  # adding to softmax -> its like removing them entirely
+            attention_scores = tf.add(attention_scores, adder)  # adding to softmax -> its like removing them entirely
 
         # scores to probabilities
         attention_probs = tf.nn.softmax(attention_scores)           # [B, N, F, T]
