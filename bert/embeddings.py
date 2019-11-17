@@ -71,7 +71,7 @@ class EmbeddingsProjector(bert.Layer):
     def build(self, input_shape):
         emb_shape = input_shape
         self.input_spec = keras.layers.InputSpec(shape=emb_shape)
-        tf.compat.v2.assert_equal(emb_shape[-1], self.params.embedding_size)
+        assert emb_shape[-1] == self.params.embedding_size
 
         # ALBERT word embeddings projection
         self.projector_layer = self.add_weight(name="projector",
@@ -86,7 +86,7 @@ class EmbeddingsProjector(bert.Layer):
 
     def call(self, inputs, **kwargs):
         input_embedding = inputs
-        tf.compat.v2.assert_equal(tf.shape(input_embedding)[-1], self.params.embedding_size)
+        assert input_embedding.shape[-1] == self.params.embedding_size
 
         # ALBERT: project embedding to hidden_size
         output = tf.matmul(input_embedding, self.projector_layer)
@@ -192,13 +192,19 @@ class BertEmbeddingsLayer(bert.Layer):
         input_ids = tf.cast(input_ids, dtype=tf.int32)
 
         if self.extra_word_embeddings_layer is not None:
-            extra_tokens = tf.where(input_ids < 0, -input_ids, tf.zeros_like(input_ids))
-            token_ids    = tf.where(input_ids >= 0, input_ids, tf.zeros_like(input_ids))
+            token_mask   = tf.cast(input_ids >= 0, tf.int32)
+            extra_mask   = tf.cast(input_ids < 0, tf.int32)
+            token_ids    = token_mask * input_ids
+            extra_tokens = extra_mask * (- input_ids)
+
             token_output = self.word_embeddings_layer(token_ids)
             extra_output = self.extra_word_embeddings_layer(extra_tokens)
-            embedding_output = tf.where(tf.broadcast_to(tf.expand_dims(input_ids >= 0, -1),
-                                                        tf.shape(token_output)),
-                                        token_output, extra_output)
+            embedding_output = tf.add(token_output,
+                                      extra_output * tf.expand_dims(tf.cast(extra_mask, K.floatx()), axis=-1))
+            # embedding_output = tf.where(tf.broadcast_to(tf.expand_dims(input_ids >= 0, -1),
+            #                                             tf.shape(token_output)),
+            #                             token_output, extra_output)
+
         else:
             embedding_output = self.word_embeddings_layer(input_ids)
 
