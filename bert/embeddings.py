@@ -115,6 +115,8 @@ class BertEmbeddingsLayer(bert.Layer):
         project_embeddings_with_bias = True   # in ALBERT - True for Google, False for brightmart/albert_zh
         project_position_embeddings  = True   # in ALEBRT - True for Google, False for brightmart/albert_zh
 
+        mask_zero                    = False
+
     # noinspection PyUnusedLocal
     def _construct(self, params: Params):
         self.word_embeddings_layer       = None
@@ -125,7 +127,7 @@ class BertEmbeddingsLayer(bert.Layer):
         self.layer_norm_layer = None
         self.dropout_layer    = None
 
-        self.support_masking = True
+        self.support_masking = params.mask_zero
 
     # noinspection PyAttributeOutsideInit
     def build(self, input_shape):
@@ -144,14 +146,14 @@ class BertEmbeddingsLayer(bert.Layer):
         self.word_embeddings_layer = keras.layers.Embedding(
             input_dim=self.params.vocab_size,
             output_dim=embedding_size,
-            mask_zero=True,
+            mask_zero=self.params.mask_zero,
             name="word_embeddings"
         )
         if self.params.extra_tokens_vocab_size is not None:
             self.extra_word_embeddings_layer = keras.layers.Embedding(
                 input_dim=self.params.extra_tokens_vocab_size + 1,  # +1 is for a <pad>/0 vector
                 output_dim=embedding_size,
-                mask_zero=True,
+                mask_zero=self.params.mask_zero,
                 name="extra_word_embeddings"
             )
 
@@ -244,7 +246,7 @@ class BertEmbeddingsLayer(bert.Layer):
             input_ids      = inputs
             token_type_ids = None
 
-        # if not self.mask_zero:
-        #   return None
+        if not self.support_masking:
+            return None
 
         return tf.not_equal(input_ids, 0)

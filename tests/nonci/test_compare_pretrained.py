@@ -70,7 +70,7 @@ class TestCompareBertsOnPretrainedWeight(unittest.TestCase):
 
     def test___compare_weights(self):
 
-        tf.reset_default_graph()
+        tf.compat.v1.reset_default_graph()
 
         max_seq_len = 18
         model, bert, inputs = self.create_bert_model(18)

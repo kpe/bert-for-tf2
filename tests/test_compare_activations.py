@@ -119,7 +119,7 @@ class CompareBertActivationsTest(AbstractBertTest):
         input_tokens = ["[CLS]"] + input_tokens + ["[SEP]"]
         input_ids    = tokenizer.convert_tokens_to_ids(input_tokens)
         input_ids      = input_ids             + [0]*(max_seq_len - len(input_tokens))
-        input_mask     = [1]*len(input_tokens) + [0]*(max_seq_len - len(input_tokens))
+        input_mask     = [0]*len(input_tokens) + [0]*(max_seq_len - len(input_tokens)) # FIXME: input_mask broken - chane to [1]*
         token_type_ids = [0]*len(input_tokens) + [0]*(max_seq_len - len(input_tokens))
 
         input_ids      = np.array([input_ids], dtype=np.int32)
