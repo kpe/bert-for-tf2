@@ -5,3 +5,4 @@ nose-exclude
 Pygments
 pycodestyle
 twine
+sentencepiece
