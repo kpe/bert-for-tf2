@@ -34,7 +34,7 @@ class TestAdapterFineTuning(AbstractBertTest):
         # build a dummy bert
         self.ckpt_path = MiniBertFactory.create_mini_bert_weights()
         self.ckpt_dir = os.path.dirname(self.ckpt_path)
-        self.tokenizer = bert.FullTokenizer(vocab_file=os.path.join(self.ckpt_dir, "vocab.txt"), do_lower_case=True)
+        self.tokenizer = bert.bert_tokenization.FullTokenizer(vocab_file=os.path.join(self.ckpt_dir, "vocab.txt"), do_lower_case=True)
 
     def test_coverage_improve(self):
         bert_params = bert.params_from_pretrained_ckpt(self.ckpt_dir)

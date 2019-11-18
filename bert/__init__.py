@@ -10,7 +10,8 @@ from .attention import AttentionLayer
 from .layer import Layer
 from .model import BertModelLayer
 
-from .tokenization import FullTokenizer
+from .tokenization import bert_tokenization
+from .tokenization import albert_tokenization
 
 from .loader import StockBertConfig, load_stock_weights, params_from_pretrained_ckpt
 from .loader import load_stock_weights as load_bert_weights

@@ -21,6 +21,8 @@ common Keras boilerplate code (related to passing model and layer configuration 
 
 NEWS
 ----
+ - **18.Nov.2019** - ALBERT tokenization added (make sure to import as ``from bert import albert_tokenization`` or ``from bert import bert_tokenization``).
+
  - **08.Nov.2019** - using v2 per default when loading the `TFHub/albert`_ weights of `google-research/albert`_.
 
  - **05.Nov.2019** - minor ALBERT word embeddings refactoring (``word_embeddings_2`` -> ``word_embeddings_projector``) and related parameter freezing fixes.
