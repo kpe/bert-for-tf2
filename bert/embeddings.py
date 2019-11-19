@@ -44,9 +44,7 @@ class PositionEmbeddingLayer(bert.Layer):
         # that seq_len is less than max_position_embeddings
         seq_len = inputs
 
-        assert_op = tf.compat.v1.assert_less_equal(seq_len, self.params.max_position_embeddings)
-        # TODO: TF < v2.0
-        # assert_op = tf.assert_less_equal(seq_len, self.params.max_position_embeddings)
+        assert_op = tf.compat.v2.debugging.assert_less_equal(seq_len, self.params.max_position_embeddings)
 
         with tf.control_dependencies([assert_op]):
             # slice to seq_len
@@ -154,6 +152,7 @@ class BertEmbeddingsLayer(bert.Layer):
                 input_dim=self.params.extra_tokens_vocab_size + 1,  # +1 is for a <pad>/0 vector
                 output_dim=embedding_size,
                 mask_zero=self.params.mask_zero,
+                embeddings_initializer=self.create_initializer(),
                 name="extra_word_embeddings"
             )
 

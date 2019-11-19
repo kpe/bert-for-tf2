@@ -48,12 +48,12 @@ class ProjectionLayer(Layer):
 
         if self.params.adapter_size is not None:
             self.adapter_down = keras.layers.Dense(units=self.params.adapter_size,
-                                                   kernel_initializer=tf.compat.v1.initializers.truncated_normal(
+                                                   kernel_initializer=tf.keras.initializers.TruncatedNormal(
                                                        stddev=self.params.adapter_init_scale),
                                                    activation=self.get_activation(self.params.adapter_activation),
                                                    name="adapter-down")
             self.adapter_up   = keras.layers.Dense(units=self.params.hidden_size,
-                                                   kernel_initializer=tf.compat.v1.initializers.truncated_normal(
+                                                   kernel_initializer=tf.keras.initializers.TruncatedNormal(
                                                        stddev=self.params.adapter_init_scale),
                                                    name="adapter-up")
 
