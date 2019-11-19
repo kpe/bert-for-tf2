@@ -125,8 +125,21 @@ albert_models_config = {
 
 
 def albert_params(albert_model: str):
-    albert_config = albert_models_config[albert_model]
-    stock_config = loader.StockBertConfig(**albert_config)
+    """Returns the ALBERT params for the specified TFHub model.
+
+    :param albert_model: either a model name or a checkpoint directory
+                         containing an assets/albert_config.json
+    """
+    config_file = os.path.join(albert_model, "assets", "albert_config.json")
+    if tf.io.gfile.exists(config_file):
+        stock_config = loader.StockBertConfig.from_json_file(config_file)
+    elif albert_model in albert_models_config:
+        albert_config = albert_models_config[albert_model]
+        stock_config = loader.StockBertConfig(**albert_config)
+    else:
+        raise ValueError("ALBERT model with name:[{}] not one of tfhub/google-research albert models, try one of:{}".format(
+            albert_model, albert_models_tfhub))
+
     params = loader.map_stock_config_to_params(stock_config)
     return params
 

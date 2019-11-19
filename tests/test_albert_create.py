@@ -99,3 +99,38 @@ class AlbertTest(AbstractBertTest):
         bert.load_albert_weights(l_bert, albert_dir)
 
         model.summary()
+
+    def test_albert_params(self):
+        albert_model_name = "albert_base"
+        albert_dir = bert.fetch_tfhub_albert_model(albert_model_name, ".models")
+        dir_params = bert.albert_params(albert_dir)
+        dir_params.attention_dropout = 0.1  # diff between README and assets/albert_config.json
+        dir_params.hidden_dropout = 0.1
+        name_params = bert.albert_params(albert_model_name)
+        self.assertEqual(name_params, dir_params)
+
+        # coverage
+        model_params = dir_params
+        model_params.vocab_size = model_params.vocab_size + 2
+        model_params.adapter_size = 1
+        l_bert = bert.BertModelLayer.from_params(model_params, name="albert")
+        l_bert(tf.zeros((1, 128)))
+        bert.load_albert_weights(l_bert, albert_dir)
+
+    def test_albert_zh_fetch_and_load(self):
+        albert_model_name = "albert_tiny"
+        albert_dir = bert.fetch_brightmart_albert_model(albert_model_name, ".models")
+
+        model_params = bert.params_from_pretrained_ckpt(albert_dir)
+        model_params.vocab_size = model_params.vocab_size + 2
+        model_params.adapter_size = 1
+        l_bert = bert.BertModelLayer.from_params(model_params, name="albert")
+        l_bert(tf.zeros((1, 128)))
+        res = bert.load_albert_weights(l_bert, albert_dir)
+        self.assertTrue(len(res) > 0)
+
+    def test_coverage(self):
+        try:
+            bert.fetch_google_bert_model("not-existent_bert_model", ".models")
+        except:
+            pass
