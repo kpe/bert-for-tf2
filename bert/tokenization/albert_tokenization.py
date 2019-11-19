@@ -193,12 +193,14 @@ def printable_text(text):
 def load_vocab(vocab_file):
     """Loads a vocabulary file into a dictionary."""
     vocab = collections.OrderedDict()
-    with tf.gfile.GFile(vocab_file, "r") as reader:
+    with tf.io.gfile.GFile(vocab_file, "r") as reader:
         while True:
             token = convert_to_unicode(reader.readline())
             if not token:
                 break
-            token = token.strip().split()[0]
+            token = token.strip()
+            if token:
+                token = token.split()[0]
             if token not in vocab:
                 vocab[token] = len(vocab)
     return vocab
