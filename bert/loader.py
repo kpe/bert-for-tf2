@@ -23,7 +23,7 @@ bert_models_google = {
     "cased_L-24_H-1024_A-16":       "https://storage.googleapis.com/bert_models/2018_10_18/cased_L-24_H-1024_A-16.zip",
     "multi_cased_L-12_H-768_A-12":  "https://storage.googleapis.com/bert_models/2018_11_23/multi_cased_L-12_H-768_A-12.zip",
     "multilingual_L-12_H-768_A-12": "https://storage.googleapis.com/bert_models/2018_11_03/multilingual_L-12_H-768_A-12.zip",
-    "chinese_L-12_H-768_A-12.zip":  "https://storage.googleapis.com/bert_models/2018_11_03/chinese_L-12_H-768_A-12.zip",
+    "chinese_L-12_H-768_A-12":  "https://storage.googleapis.com/bert_models/2018_11_03/chinese_L-12_H-768_A-12.zip",
     "wwm_uncased_L-24_H-1024_A-16": "https://storage.googleapis.com/bert_models/2019_05_30/wwm_uncased_L-24_H-1024_A-16.zip",
     "wwm_cased_L-24_H-1024_A-16":   "https://storage.googleapis.com/bert_models/2019_05_30/wwm_cased_L-24_H-1024_A-16.zip",
 }
