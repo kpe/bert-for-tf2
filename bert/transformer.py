@@ -67,9 +67,9 @@ class ProjectionLayer(Layer):
         if self.adapter_down is not None:
             adapted = self.adapter_down(output)
             adapted = self.adapter_up(adapted)
-            output = output + adapted
+            output = tf.add(output, adapted)
 
-        output = self.layer_norm(output + residual)
+        output = self.layer_norm(tf.add(output, residual))
         return output
 
 
