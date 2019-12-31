@@ -100,27 +100,27 @@ def map_to_stock_variable_name(name, prefix="bert"):
 
 
 class StockBertConfig(params.Params):
-    attention_probs_dropout_prob = None,  # 0.1
-    hidden_act                   = None,  # "gelu"
-    hidden_dropout_prob          = None,  # 0.1,
-    hidden_size                  = None,  # 768,
-    initializer_range            = None,  # 0.02,
-    intermediate_size            = None,  # 3072,
-    max_position_embeddings      = None,  # 512,
-    num_attention_heads          = None,  # 12,
-    num_hidden_layers            = None,  # 12,
-    type_vocab_size              = None,  # 2,
-    vocab_size                   = None,  # 30522
+    attention_probs_dropout_prob = None  # 0.1
+    hidden_act                   = None  # "gelu"
+    hidden_dropout_prob          = None  # 0.1,
+    hidden_size                  = None  # 768,
+    initializer_range            = None  # 0.02,
+    intermediate_size            = None  # 3072,
+    max_position_embeddings      = None  # 512,
+    num_attention_heads          = None  # 12,
+    num_hidden_layers            = None  # 12,
+    type_vocab_size              = None  # 2,
+    vocab_size                   = None  # 30522
 
     # ALBERT params
-    # directionality             = None,  # "bidi"
-    # pooler_fc_size             = None,  # 768,
-    # pooler_num_attention_heads = None,  # 12,
-    # pooler_num_fc_layers       = None,  # 3,
-    # pooler_size_per_head       = None,  # 128,
-    # pooler_type                = None,  # "first_token_transform",
-    # ln_type                    = None,  # "postln"
-    embedding_size               = None   # 128
+    # directionality             = None  # "bidi"
+    # pooler_fc_size             = None  # 768,
+    # pooler_num_attention_heads = None  # 12,
+    # pooler_num_fc_layers       = None  # 3,
+    # pooler_size_per_head       = None  # 128,
+    # pooler_type                = None  # "first_token_transform",
+    ln_type                      = None  # "postln"   # used for detecting brightmarts weights
+    embedding_size               = None  # 128
 
     def to_bert_model_layer_params(self):
         return map_stock_config_to_params(self)
@@ -165,8 +165,9 @@ def params_from_pretrained_ckpt(bert_ckpt_dir):
     with tf.io.gfile.GFile(bert_config_file, "r") as reader:
         bc = StockBertConfig.from_json_string(reader.read())
         bert_params = map_stock_config_to_params(bc)
-        bert_params.project_position_embeddings  = "ln_type" not in bc  # ALBERT: False for brightmart/weights
-        bert_params.project_embeddings_with_bias = "ln_type" not in bc  # ALBERT: False for brightmart/weights
+        is_brightmart_weights = bc["ln_type"] is not None
+        bert_params.project_position_embeddings  = not is_brightmart_weights  # ALBERT: False for brightmart/weights
+        bert_params.project_embeddings_with_bias = not is_brightmart_weights  # ALBERT: False for brightmart/weights
 
     return bert_params
 

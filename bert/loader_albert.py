@@ -135,7 +135,7 @@ def albert_params(albert_model: str):
         stock_config = loader.StockBertConfig.from_json_file(config_file)
     elif albert_model in albert_models_config:
         albert_config = albert_models_config[albert_model]
-        stock_config = loader.StockBertConfig(**albert_config)
+        stock_config = loader.StockBertConfig.from_dict(albert_config, return_instance=True, return_unused=False)
     else:
         raise ValueError("ALBERT model with name:[{}] not one of tfhub/google-research albert models, try one of:{}".format(
             albert_model, albert_models_tfhub))

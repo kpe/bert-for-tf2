@@ -140,7 +140,7 @@ class AdapterFreezeTest(AbstractBertTest):
 
         bert_params = bert.BertModelLayer.Params(
             attention_dropout=0.1,
-            hidden_act="gelu",
+            intermediate_activation="gelu",
             hidden_dropout=0.1,
             hidden_size=8,
             initializer_range=0.02,
