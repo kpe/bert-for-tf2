@@ -185,7 +185,7 @@ def bert_prefix(bert: BertModelLayer):
     return prefix
 
 
-def load_stock_weights(bert: BertModelLayer, ckpt_path):
+def load_stock_weights(bert: BertModelLayer, ckpt_path, map_to_stock_fn=map_to_stock_variable_name):
     """
     Use this method to load the weights from a pre-trained BERT checkpoint into a bert layer.
 
@@ -210,7 +210,7 @@ def load_stock_weights(bert: BertModelLayer, ckpt_path):
     bert_params = bert.weights
     param_values = keras.backend.batch_get_value(bert.weights)
     for ndx, (param_value, param) in enumerate(zip(param_values, bert_params)):
-        stock_name = map_to_stock_variable_name(param.name, prefix)
+        stock_name = map_to_stock_fn(param.name, prefix)
 
         if ckpt_reader.has_tensor(stock_name):
             ckpt_value = ckpt_reader.get_tensor(stock_name)

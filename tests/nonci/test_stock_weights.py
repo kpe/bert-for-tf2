@@ -6,17 +6,14 @@
 from __future__ import absolute_import, division, print_function
 
 
-
 import unittest
 import math
+import os
 
 import tensorflow as tf
 from tensorflow.python import keras
 
-from bert import BertModelLayer, loader
-from bert.loader import map_from_stock_variale_name, map_to_stock_variable_name, load_stock_weights
-from bert.loader import StockBertConfig, map_stock_config_to_params
-from bert.tokenization import FullTokenizer
+import bert
 
 #tf.enable_eager_execution()
 #tf.disable_eager_execution()
@@ -59,34 +56,40 @@ def create_learning_rate_scheduler(max_learn_rate=5e-5,
 
 
 class TestWeightsLoading(unittest.TestCase):
-    bert_ckpt_dir = ".models/uncased_L-12_H-768_A-12/"
-    bert_ckpt_file = bert_ckpt_dir + "bert_model.ckpt"
-    bert_config_file = bert_ckpt_dir + "bert_config.json"
+    #bert_ckpt_dir = ".models/uncased_L-12_H-768_A-12/"
+    #bert_ckpt_file = bert_ckpt_dir + "bert_model.ckpt"
+    #bert_config_file = bert_ckpt_dir + "bert_config.json"
+
+    def setUp(self) -> None:
+        self.bert_name = "uncased_L-12_H-768_A-12"
+        self.bert_ckpt_dir = bert.fetch_google_bert_model(self.bert_name, fetch_dir=".models")
+        self.bert_ckpt_file = os.path.join(self.bert_ckpt_dir, "bert_model.ckpt")
+        self.bert_config_file = os.path.join(self.bert_ckpt_dir, "bert_config.json")
 
     def test_load_pretrained(self):
         print("Eager Execution:", tf.executing_eagerly())
 
-        bert_params = loader.params_from_pretrained_ckpt(self.bert_ckpt_dir)
+        bert_params = bert.loader.params_from_pretrained_ckpt(self.bert_ckpt_dir)
         bert_params.adapter_size = 32
-        bert = BertModelLayer.from_params(bert_params, name="bert")
+        l_bert = bert.BertModelLayer.from_params(bert_params, name="bert")
 
         model = keras.models.Sequential([
             keras.layers.InputLayer(input_shape=(128,)),
-            bert,
+            l_bert,
             keras.layers.Lambda(lambda x: x[:, 0, :]),
             keras.layers.Dense(2)
         ])
 
         # we need to freeze before build/compile - otherwise keras counts the params twice
         if bert_params.adapter_size is not None:
-            freeze_bert_layers(bert)
+            freeze_bert_layers(l_bert)
 
         model.build(input_shape=(None, 128))
         model.compile(optimizer=keras.optimizers.Adam(),
             loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
             metrics=[keras.metrics.SparseCategoricalAccuracy(name="acc")])
 
-        load_stock_weights(bert, self.bert_ckpt_file)
+        bert.load_stock_weights(l_bert, self.bert_ckpt_file)
 
         model.summary()
 

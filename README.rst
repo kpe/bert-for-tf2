@@ -21,15 +21,16 @@ common Keras boilerplate code (related to passing model and layer configuration 
 
 NEWS
 ----
+ - **06.Jan.2019** - support for loading the tar format weights from `google-research/ALBERT`.
  - **18.Nov.2019** - ALBERT tokenization added (make sure to import as ``from bert import albert_tokenization`` or ``from bert import bert_tokenization``).
 
- - **08.Nov.2019** - using v2 per default when loading the `TFHub/albert`_ weights of `google-research/albert`_.
+ - **08.Nov.2019** - using v2 per default when loading the `TFHub/albert`_ weights of `google-research/ALBERT`_.
 
  - **05.Nov.2019** - minor ALBERT word embeddings refactoring (``word_embeddings_2`` -> ``word_embeddings_projector``) and related parameter freezing fixes.
 
  - **04.Nov.2019** - support for extra (task specific) token embeddings using negative token ids.
 
- - **29.Oct.2019** - support for loading of the pre-trained ALBERT weights released by `google-research/albert`_  at `TFHub/albert`_.
+ - **29.Oct.2019** - support for loading of the pre-trained ALBERT weights released by `google-research/ALBERT`_  at `TFHub/albert`_.
 
  - **11.Oct.2019** - support for loading of the pre-trained ALBERT weights released by `brightmart/albert_zh ALBERT for Chinese`_.
 
@@ -164,9 +165,9 @@ FAQ
 
   bert.load_bert_weights(l_bert, model_ckpt)      # should be called after model.build()
 
-2. How to use ALBERT with the `google-research/albert`_ pre-trained weights?
+2. How to use ALBERT with the `google-research/ALBERT`_ pre-trained weights (fetching from TFHub)?
 
-see `tests/nonci/test_albert.py <https://github.com/kpe/bert-for-tf2/blob/master/tests/nonci/test_albert.py>`_:
+see `tests/nonci/test_load_pretrained_weights.py <https://github.com/kpe/bert-for-tf2/blob/master/tests/nonci/test_load_pretrained_weights.py>`_:
 
 .. code:: python
 
@@ -179,7 +180,24 @@ see `tests/nonci/test_albert.py <https://github.com/kpe/bert-for-tf2/blob/master
 
   bert.load_albert_weights(l_bert, albert_dir)      # should be called after model.build()
 
-3. How to use ALBERT with the `brightmart/albert_zh`_ pre-trained weights?
+3. How to use ALBERT with the `google-research/ALBERT`_ pre-trained weights (non TFHub)?
+
+see `tests/nonci/test_load_pretrained_weights.py <https://github.com/kpe/bert-for-tf2/blob/master/tests/nonci/test_load_pretrained_weights.py>`_:
+
+.. code:: python
+
+  model_name = "albert_base_v2"
+  model_dir    = bert.fetch_google_albert_model(model_name, ".models")
+  model_ckpt   = os.path.join(albert_dir, "model.ckpt-best")
+
+  model_params = bert.albert_params(model_dir)
+  l_bert = bert.BertModelLayer.from_params(model_params, name="albert")
+
+  # use in Keras Model here, and call model.build()
+
+  bert.load_albert_weights(l_bert, model_ckpt)      # should be called after model.build()
+
+4. How to use ALBERT with the `brightmart/albert_zh`_ pre-trained weights?
 
 see `tests/nonci/test_albert.py <https://github.com/kpe/bert-for-tf2/blob/master/tests/nonci/test_albert.py>`_:
 
@@ -196,7 +214,7 @@ see `tests/nonci/test_albert.py <https://github.com/kpe/bert-for-tf2/blob/master
 
   bert.load_albert_weights(l_bert, model_ckpt)      # should be called after model.build()
 
-4. How to tokenize the input for the `google-research/bert`_ models?
+5. How to tokenize the input for the `google-research/bert`_ models?
 
   do_lower_case = not (model_name.find("cased") == 0 or model_name.find("multi_cased") == 0)
   bert.bert_tokenization.validate_case_matches_checkpoint(do_lower_case, model_ckpt)
@@ -205,7 +223,7 @@ see `tests/nonci/test_albert.py <https://github.com/kpe/bert-for-tf2/blob/master
   tokens = tokenizer.tokenize("Hello, BERT-World!")
   token_ids = tokenizer.convert_tokens_to_ids(tokens)
 
-5. How to tokenize the input for `brightmart/albert_zh`?
+6. How to tokenize the input for `brightmart/albert_zh`?
 
   import params_flow pf
 
@@ -217,7 +235,7 @@ see `tests/nonci/test_albert.py <https://github.com/kpe/bert-for-tf2/blob/master
   tokens = tokenizer.tokenize("你好世界")
   token_ids = tokenizer.convert_tokens_to_ids(tokens)
 
-6. How to tokenize the input for the `google-research/albert`_ models?
+7. How to tokenize the input for the `google-research/ALBERT`_ models?
 
   import sentencepiece as spm
 
@@ -229,6 +247,14 @@ see `tests/nonci/test_albert.py <https://github.com/kpe/bert-for-tf2/blob/master
   processed_text = bert.albert_tokenization.preprocess_text("Hello, World!", lower=do_lower_case)
   token_ids = bert.albert_tokenization.encode_ids(sp, processed_text)
 
+8. How to tokenize the input for the Chinese `google-research/ALBERT`_ models?
+
+  import bert
+
+  vocab_file = os.path.join(model_dir, "vocab.txt")
+  tokenizer = bert.albert_tokenization.FullTokenizer(vocab_file=vocab_file)
+  tokens = tokenizer.tokenize("你好世界")
+  token_ids = tokenizer.convert_tokens_to_ids(tokens)
 
 Resources
 ---------
@@ -237,7 +263,8 @@ Resources
 - `adapter-BERT`_ - adapter-BERT: Parameter-Efficient Transfer Learning for NLP
 - `ALBERT`_ - ALBERT: A Lite BERT for Self-Supervised Learning of Language Representations
 - `google-research/bert`_ - the original `BERT`_ implementation
-- `google-research/albert`_ - the original `ALBERT`_ implementation by Google
+- `google-research/ALBERT`_ - the original `ALBERT`_ implementation by Google
+- `google-research/albert(old)`_ - the old location of the original `ALBERT`_ implementation by Google
 - `brightmart/albert_zh`_ - pre-trained `ALBERT`_ weights for Chinese
 - `kpe/params-flow`_ - A Keras coding style for reducing `Keras`_ boilerplate code in custom layers by utilizing `kpe/py-params`_
 
@@ -261,8 +288,9 @@ Resources
 .. _`brightmart/albert_zh ALBERT for Chinese`: https://github.com/brightmart/albert_zh
 .. _`brightmart/albert_zh`: https://github.com/brightmart/albert_zh
 .. _`google ALBERT weights`: https://github.com/google-research/google-research/tree/master/albert
-.. _`google-research/albert`: https://github.com/google-research/google-research/tree/master/albert
-.. _`TFHub/albert`: https://tfhub.dev/google/albert_base/1
+.. _`google-research/albert(old)`: https://github.com/google-research/google-research/tree/master/albert
+.. _`google-research/ALBERT`: https://github.com/google-research/ALBERT
+.. _`TFHub/albert`: https://tfhub.dev/google/albert_base/2
 
 .. |Build Status| image:: https://travis-ci.org/kpe/bert-for-tf2.svg?branch=master
    :target: https://travis-ci.org/kpe/bert-for-tf2

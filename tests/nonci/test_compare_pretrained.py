@@ -6,29 +6,26 @@
 from __future__ import absolute_import, division, print_function
 
 import unittest
-import re
 import os
 
 import numpy as np
 
 import tensorflow as tf
 from tensorflow.python import keras
-from tensorflow.python.keras import backend as K
 
-import params
 
-from bert import BertModelLayer
-from bert.loader import map_from_stock_variale_name, map_to_stock_variable_name, load_stock_weights
-from bert.loader import StockBertConfig, map_stock_config_to_params
-from bert.tokenization import FullTokenizer
+import bert
+from bert.tokenization.bert_tokenization import FullTokenizer
 
 tf.compat.v1.disable_eager_execution()
 
 
 class TestCompareBertsOnPretrainedWeight(unittest.TestCase):
-    bert_ckpt_dir = ".models/uncased_L-12_H-768_A-12/"
-    bert_ckpt_file = bert_ckpt_dir + "bert_model.ckpt"
-    bert_config_file = bert_ckpt_dir + "bert_config.json"
+    def setUp(self) -> None:
+        self.bert_name = "uncased_L-12_H-768_A-12"
+        self.bert_ckpt_dir = bert.fetch_google_bert_model(self.bert_name, fetch_dir=".models")
+        self.bert_ckpt_file = os.path.join(self.bert_ckpt_dir, "bert_model.ckpt")
+        self.bert_config_file = os.path.join(self.bert_ckpt_dir, "bert_config.json")
 
     def test_bert_original_weights(self):
         print("bert checkpoint: ", self.bert_ckpt_file)
@@ -37,32 +34,27 @@ class TestCompareBertsOnPretrainedWeight(unittest.TestCase):
             print("{:3d}".format(ndx), var)
 
     def create_bert_model(self, max_seq_len=18):
-
-        bc = None
-        with tf.io.gfile.GFile(self.bert_config_file, "r") as reader:
-            bc = StockBertConfig.from_json_string(reader.read())
-
-        bert = BertModelLayer.from_params(map_stock_config_to_params(bc),
-                                          name="bert")
+        bert_params = bert.loader.params_from_pretrained_ckpt(self.bert_ckpt_dir)
+        l_bert = bert.BertModelLayer.from_params(bert_params, name="bert")
 
         input_ids      = keras.layers.Input(shape=(max_seq_len,), dtype='int32', name="input_ids")
         token_type_ids = keras.layers.Input(shape=(max_seq_len,), dtype='int32', name="token_type_ids")
-        output = bert([input_ids, token_type_ids])
+        output = l_bert([input_ids, token_type_ids])
 
         model = keras.Model(inputs=[input_ids, token_type_ids], outputs=output)
 
-        return model, bert, (input_ids, token_type_ids)
+        return model, l_bert, (input_ids, token_type_ids)
 
     def test_keras_weights(self):
         max_seq_len = 18
-        model, bert, inputs = self.create_bert_model(18)
+        model, l_bert, inputs = self.create_bert_model(18)
 
         model.build(input_shape=[(None, max_seq_len),
                                  (None, max_seq_len)])
 
         model.summary()
 
-        for ndx, var in enumerate(bert.trainable_variables):
+        for ndx, var in enumerate(l_bert.trainable_variables):
             print("{:3d}".format(ndx), var.name, var.shape)
 
         #for ndx, var in enumerate(model.trainable_variables):
@@ -73,7 +65,7 @@ class TestCompareBertsOnPretrainedWeight(unittest.TestCase):
         tf.compat.v1.reset_default_graph()
 
         max_seq_len = 18
-        model, bert, inputs = self.create_bert_model(18)
+        model, l_bert, inputs = self.create_bert_model(18)
         model.build(input_shape=[(None, max_seq_len),
                                  (None, max_seq_len)])
 
@@ -89,7 +81,7 @@ class TestCompareBertsOnPretrainedWeight(unittest.TestCase):
 
         for name in stock_vars:
             bert_name  = name
-            keras_name = map_from_stock_variale_name(bert_name)
+            keras_name = bert.loader.map_from_stock_variale_name(bert_name)
             if keras_name in keras_vars:
                 if keras_vars[keras_name] == stock_vars[bert_name]:
                     matched_vars.add(bert_name)
@@ -115,7 +107,7 @@ class TestCompareBertsOnPretrainedWeight(unittest.TestCase):
 
         for name in keras_vars:
             keras_name = name
-            bert_name  = map_to_stock_variable_name(keras_name)
+            bert_name  = bert.loader.map_to_stock_variable_name(keras_name)
             if bert_name in stock_vars:
                 if stock_vars[bert_name] == keras_vars[keras_name]:
                     matched_vars.add(keras_name)
@@ -138,10 +130,10 @@ class TestCompareBertsOnPretrainedWeight(unittest.TestCase):
 
     def predict_on_keras_model(self, input_ids, input_mask, token_type_ids):
         max_seq_len = input_ids.shape[-1]
-        model, bert, k_inputs = self.create_bert_model(max_seq_len)
+        model, l_bert, k_inputs = self.create_bert_model(max_seq_len)
         model.build(input_shape=[(None, max_seq_len),
                                  (None, max_seq_len)])
-        load_stock_weights(bert, self.bert_ckpt_file)
+        bert.load_stock_weights(l_bert, self.bert_ckpt_file)
         k_res = model.predict([input_ids, token_type_ids])
         return k_res
 

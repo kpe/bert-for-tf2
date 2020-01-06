@@ -71,3 +71,15 @@ class TestLoadPreTrainedWeights(unittest.TestCase):
         skipped_weight_value_tuples = bert.load_albert_weights(l_bert, albert_dir)
         self.assertEqual(0, len(skipped_weight_value_tuples))
         model.summary()
+
+    def test_albert_google_weights_non_tfhub(self):
+        albert_model_name = "albert_base_v2"
+        albert_dir = bert.fetch_google_albert_model(albert_model_name, ".models")
+        model_ckpt = os.path.join(albert_dir, "model.ckpt-best")
+
+        albert_params = bert.albert_params(albert_dir)
+        model, l_bert = self.build_model(albert_params)
+
+        skipped_weight_value_tuples = bert.load_albert_weights(l_bert, model_ckpt)
+        self.assertEqual(0, len(skipped_weight_value_tuples))
+        model.summary()

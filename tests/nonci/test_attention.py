@@ -13,7 +13,6 @@ import numpy as np
 
 
 import tensorflow as tf
-from tensorflow.python import keras
 
 from bert.attention import AttentionLayer
 
@@ -22,7 +21,7 @@ from bert.attention import AttentionLayer
 # tf.enable_eager_execution()
 
 
-class MaskFlatten(keras.layers.Flatten):
+class MaskFlatten(tf.keras.layers.Flatten):
 
     def __init__(self, **kwargs):
         self.supports_masking = True
@@ -57,14 +56,14 @@ class BertAttentionTest(unittest.TestCase):
             if count > 2:
                 break
 
-        class AModel(keras.models.Model):
+        class AModel(tf.keras.models.Model):
             def __init__(self, **kwargs):
                 super(AModel, self).__init__(**kwargs)
-                self.embedding = keras.layers.Embedding(input_dim=5, output_dim=3, mask_zero=True)
+                self.embedding = tf.keras.layers.Embedding(input_dim=5, output_dim=3, mask_zero=True)
                 self.attention = AttentionLayer(num_heads=5, size_per_head=3)
-                self.timedist  = keras.layers.TimeDistributed(MaskFlatten())
-                self.bigru = keras.layers.Bidirectional(keras.layers.GRU(units=8))
-                self.softmax = keras.layers.Dense(units=2, activation="softmax")
+                self.timedist  = tf.keras.layers.TimeDistributed(MaskFlatten())
+                self.bigru = tf.keras.layers.Bidirectional(tf.keras.layers.GRU(units=8))
+                self.softmax = tf.keras.layers.Dense(units=2, activation="softmax")
 
             #def build(self, input_shape):
             #    super(AModel,self).build(input_shape)
@@ -78,18 +77,18 @@ class BertAttentionTest(unittest.TestCase):
                 out = self.softmax(out)
                 return out
 
-        model = keras.models.Sequential([
-            keras.layers.Embedding(input_dim=5, output_dim=3, mask_zero=True),
+        model = tf.keras.models.Sequential([
+            tf.keras.layers.Embedding(input_dim=5, output_dim=3, mask_zero=True),
             AttentionLayer(num_heads=5, size_per_head=3),
-            keras.layers.TimeDistributed(MaskFlatten()),
-            keras.layers.Bidirectional(keras.layers.GRU(units=8)),
-            keras.layers.Dense(units=2, activation="softmax")
+            tf.keras.layers.TimeDistributed(MaskFlatten()),
+            tf.keras.layers.Bidirectional(tf.keras.layers.GRU(units=8)),
+            tf.keras.layers.Dense(units=2, activation="softmax")
         ])
 
         #model = AModel()
-        model.compile(optimizer=keras.optimizers.Adam(lr=0.003),
-                      loss=keras.losses.sparse_categorical_crossentropy,
-                      metrics=[keras.metrics.sparse_categorical_accuracy])
+        model.compile(optimizer=tf.keras.optimizers.Adam(lr=0.003),
+                      loss=tf.keras.losses.SparseCategoricalCrossentropy(),
+                      metrics=[tf.keras.metrics.SparseCategoricalAccuracy()])
         # model.build(input_shape=(None, max_seq_len))
 
         model.build()
@@ -98,10 +97,10 @@ class BertAttentionTest(unittest.TestCase):
         model.fit_generator(
             generator=self.data_generator(64, max_seq_len),
             steps_per_epoch=100,
-            epochs=100,
+            epochs=10,
             validation_data=self.data_generator(8, max_seq_len),
             validation_steps=10,
-            callbacks=[
-                keras.callbacks.EarlyStopping(monitor='val_sparse_categorical_accuracy', patience=5),
-            ],
+            #callbacks=[
+            #    keras.callbacks.EarlyStopping(monitor='val_sparse_categorical_accuracy', patience=5),
+            #],
         )

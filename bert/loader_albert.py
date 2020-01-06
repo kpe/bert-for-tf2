@@ -32,6 +32,18 @@ albert_models_brightmart = {
     "albert_xlarge_183k": "https://storage.googleapis.com/albert_zh/albert_xlarge_zh_183k.zip",
 }
 
+albert_models_google = {
+    "albert_base_zh": "https://storage.googleapis.com/albert_models/albert_base_zh.tar.gz",
+    "albert_large_zh": "https://storage.googleapis.com/albert_models/albert_large_zh.tar.gz",
+    "albert_xlarge_zh": "https://storage.googleapis.com/albert_models/albert_xlarge_zh.tar.gz",
+    "albert_xxlarge_zh": "https://storage.googleapis.com/albert_models/albert_xxlarge_zh.tar.gz",
+
+    "albert_base_v2": "https://storage.googleapis.com/albert_models/albert_base_v2.tar.gz",
+    "albert_large_v2": "https://storage.googleapis.com/albert_models/albert_large_v2.tar.gz",
+    "albert_xlarge_v2": "https://storage.googleapis.com/albert_models/albert_xlarge_v2.tar.gz",
+    "albert_xxlarge_v2": "https://storage.googleapis.com/albert_models/albert_xxlarge_v2.tar.gz"
+}
+
 config_albert_base = {
     "attention_probs_dropout_prob": 0.1,
     "hidden_act": "gelu",
@@ -130,15 +142,22 @@ def albert_params(albert_model: str):
     :param albert_model: either a model name or a checkpoint directory
                          containing an assets/albert_config.json
     """
-    config_file = os.path.join(albert_model, "assets", "albert_config.json")
-    if tf.io.gfile.exists(config_file):
-        stock_config = loader.StockBertConfig.from_json_file(config_file)
-    elif albert_model in albert_models_config:
-        albert_config = albert_models_config[albert_model]
-        stock_config = loader.StockBertConfig.from_dict(albert_config, return_instance=True, return_unused=False)
+    if tf.io.gfile.isdir(albert_model):
+        config_file = os.path.join(albert_model, "assets", "albert_config.json")      # google tfhub v2 weights
+        if not tf.io.gfile.exists(config_file):
+            config_file = os.path.join(albert_model, "albert_config.json")  # google non-tfhub v2 weights
+        if tf.io.gfile.exists(config_file):
+            stock_config = loader.StockBertConfig.from_json_file(config_file)
+        else:
+            raise ValueError("No google-research ALBERT model found under:[{}] expecting albert_config.json or assets/albert_config.json".format(
+                    albert_model))
     else:
-        raise ValueError("ALBERT model with name:[{}] not one of tfhub/google-research albert models, try one of:{}".format(
-            albert_model, albert_models_tfhub))
+        if albert_model in albert_models_config:                                    # google tfhub v1 weights
+            albert_config = albert_models_config[albert_model]
+            stock_config = loader.StockBertConfig.from_dict(albert_config, return_instance=True, return_unused=False)
+        else:
+            raise ValueError("ALBERT model with name:[{}] not one of tfhub/google-research albert models, try one of:{}".format(
+                albert_model, albert_models_tfhub))
 
     params = loader.map_stock_config_to_params(stock_config)
     return params
@@ -153,6 +172,20 @@ def fetch_brightmart_albert_model(model_name: str, fetch_dir: str):
 
     fetched_file = pf.utils.fetch_url(fetch_url, fetch_dir=fetch_dir)
     fetched_dir = pf.utils.unpack_archive(fetched_file)
+    return fetched_dir
+
+
+def fetch_google_albert_model(model_name: str, fetch_dir: str):
+    if model_name not in albert_models_google:
+        raise ValueError("ALBERT model with name:[{}] not found at google-research/ALBERT, try one of:{}".format(
+            model_name, albert_models_google))
+    else:
+        fetch_url = albert_models_google[model_name]
+
+    fetched_file = pf.utils.fetch_url(fetch_url, fetch_dir=fetch_dir)
+    fetched_dir = pf.utils.unpack_archive(fetched_file)
+    fetched_dir = tf.io.gfile.glob(os.path.join(fetched_dir, "*", "model.ckpt-best.meta"))[0]
+    fetched_dir = os.path.dirname(fetched_dir)
     return fetched_dir
 
 
@@ -235,6 +268,15 @@ def _is_tfhub_model(tfhub_model_path):
     return len(pb_files) >= 2 and len(assets_files) >= 1 and len(variables_files) >= 2
 
 
+def _is_google_model(ckpt_path):
+    ckpt_index = os.path.isfile(ckpt_path + ".index")
+    if ckpt_index:
+        config_path = tf.io.gfile.glob(os.path.join(os.path.dirname(ckpt_path), "albert_config.json"))
+        ckpt_meta   = tf.io.gfile.glob(os.path.join(os.path.dirname(ckpt_path), "model.ckpt-best.meta"))
+        return config_path and ckpt_meta
+    return False
+
+
 def load_albert_weights(bert: BertModelLayer, tfhub_model_path, tags=[]):
     """
     Use this method to load the weights from a pre-trained BERT checkpoint into a bert layer.
@@ -244,9 +286,15 @@ def load_albert_weights(bert: BertModelLayer, tfhub_model_path, tags=[]):
     :return: list of weights with mismatched shapes. This can be used to extend
     the segment/token_type embeddings.
     """
+
     if not _is_tfhub_model(tfhub_model_path):
-        print("Loading brightmart/albert_zh weights...")
-        return loader.load_stock_weights(bert, tfhub_model_path)
+        if _is_google_model(tfhub_model_path):
+            print("Loading google-research/ALBERT weights...")
+            map_to_stock_fn = map_to_tfhub_albert_variable_name
+        else:
+            print("Loading brightmart/albert_zh weights...")
+            map_to_stock_fn = loader.map_to_stock_variable_name
+        return loader.load_stock_weights(bert, tfhub_model_path, map_to_stock_fn=map_to_stock_fn)
 
     assert isinstance(bert, BertModelLayer), "Expecting a BertModelLayer instance as first argument"
     prefix = loader.bert_prefix(bert)

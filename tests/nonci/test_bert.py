@@ -82,7 +82,7 @@ class RawBertTest(unittest.TestCase):
 
         model.fit_generator(generator=parity_ds_generator(64, max_seq_len),
                             steps_per_epoch=100,
-                            epochs=100,
+                            epochs=10,
                             validation_data=parity_ds_generator(32, max_seq_len),  # TODO: can't change max_seq_len (but transformer alone can)
                             validation_steps=10,
                             callbacks=[

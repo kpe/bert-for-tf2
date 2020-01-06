@@ -74,7 +74,7 @@ class TransformerTest(unittest.TestCase):
 
         model.fit_generator(generator=parity_ds_generator(64, max_seq_len),
                             steps_per_epoch=100,
-                            epochs=100,
+                            epochs=20,
                             validation_data=parity_ds_generator(12, -4+max_seq_len),
                             validation_steps=10,
                             callbacks=[
