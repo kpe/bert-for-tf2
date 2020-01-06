@@ -149,8 +149,7 @@ def albert_params(albert_model: str):
         if tf.io.gfile.exists(config_file):
             stock_config = loader.StockBertConfig.from_json_file(config_file)
         else:
-            raise ValueError("No google-research ALBERT model found under:[{}] expecting albert_config.json or assets/albert_config.json".format(
-                    albert_model))
+            raise ValueError("No google-research ALBERT model found under:[{}] expecting albert_config.json or assets/albert_config.json".format(albert_model))
     else:
         if albert_model in albert_models_config:                                    # google tfhub v1 weights
             albert_config = albert_models_config[albert_model]
