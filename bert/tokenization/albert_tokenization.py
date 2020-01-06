@@ -26,7 +26,6 @@ import unicodedata
 import six
 from six.moves import range
 import tensorflow.compat.v1 as tf
-import tensorflow_hub as hub
 import sentencepiece as spm
 
 SPIECE_UNDERLINE = u"▁".encode("utf-8")
@@ -258,6 +257,7 @@ class FullTokenizer(object):
     @classmethod
     def from_hub_module(cls, hub_module, spm_model_file):
         """Get the vocab file and casing info from the Hub module."""
+        import tensorflow_hub as hub
         with tf.Graph().as_default():
             albert_module = hub.Module(hub_module)
             tokenization_info = albert_module(signature="tokenization_info",
