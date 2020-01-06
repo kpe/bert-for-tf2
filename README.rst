@@ -216,45 +216,45 @@ see `tests/nonci/test_albert.py <https://github.com/kpe/bert-for-tf2/blob/master
 
 5. How to tokenize the input for the `google-research/bert`_ models?
 
-  do_lower_case = not (model_name.find("cased") == 0 or model_name.find("multi_cased") == 0)
-  bert.bert_tokenization.validate_case_matches_checkpoint(do_lower_case, model_ckpt)
-  vocab_file = os.path.join(model_dir, "vocab.txt")
-  tokenizer = bert.bert_tokenization.FullTokenizer(vocab_file, do_lower_case)
-  tokens = tokenizer.tokenize("Hello, BERT-World!")
-  token_ids = tokenizer.convert_tokens_to_ids(tokens)
+  | do_lower_case = not (model_name.find("cased") == 0 or model_name.find("multi_cased") == 0)
+  | bert.bert_tokenization.validate_case_matches_checkpoint(do_lower_case, model_ckpt)
+  | vocab_file = os.path.join(model_dir, "vocab.txt")
+  | tokenizer = bert.bert_tokenization.FullTokenizer(vocab_file, do_lower_case)
+  | tokens = tokenizer.tokenize("Hello, BERT-World!")
+  | token_ids = tokenizer.convert_tokens_to_ids(tokens)
 
 6. How to tokenize the input for `brightmart/albert_zh`?
 
-  import params_flow pf
-
-  # fetch the vocab file
-  albert_zh_vocab_url = "https://raw.githubusercontent.com/brightmart/albert_zh/master/albert_config/vocab.txt"
-  vocab_file = pf.utils.fetch_url(albert_zh_vocab_url, model_dir)
-
-  tokenizer = bert.albert_tokenization.FullTokenizer(vocab_file)
-  tokens = tokenizer.tokenize("你好世界")
-  token_ids = tokenizer.convert_tokens_to_ids(tokens)
+  | import params_flow pf
+  | 
+  | # fetch the vocab file
+  | albert_zh_vocab_url = "https://raw.githubusercontent.com/brightmart/albert_zh/master/albert_config/vocab.txt"
+  | vocab_file = pf.utils.fetch_url(albert_zh_vocab_url, model_dir)
+  | 
+  | tokenizer = bert.albert_tokenization.FullTokenizer(vocab_file)
+  | tokens = tokenizer.tokenize("你好世界")
+  | token_ids = tokenizer.convert_tokens_to_ids(tokens)
 
 7. How to tokenize the input for the `google-research/ALBERT`_ models?
 
-  import sentencepiece as spm
-
-  spm_model = os.path.join(model_dir, "assets", "30k-clean.model")
-  sp = spm.SentencePieceProcessor()
-  sp.load(spm_model)
-  do_lower_case = True
-
-  processed_text = bert.albert_tokenization.preprocess_text("Hello, World!", lower=do_lower_case)
-  token_ids = bert.albert_tokenization.encode_ids(sp, processed_text)
+  | import sentencepiece as spm
+  | 
+  | spm_model = os.path.join(model_dir, "assets", "30k-clean.model")
+  | sp = spm.SentencePieceProcessor()
+  | sp.load(spm_model)
+  | do_lower_case = True
+  |
+  | processed_text = bert.albert_tokenization.preprocess_text("Hello, World!", lower=do_lower_case)
+  | token_ids = bert.albert_tokenization.encode_ids(sp, processed_text)
 
 8. How to tokenize the input for the Chinese `google-research/ALBERT`_ models?
-
-  import bert
-
-  vocab_file = os.path.join(model_dir, "vocab.txt")
-  tokenizer = bert.albert_tokenization.FullTokenizer(vocab_file=vocab_file)
-  tokens = tokenizer.tokenize("你好世界")
-  token_ids = tokenizer.convert_tokens_to_ids(tokens)
+  
+  | import bert
+  | 
+  | vocab_file = os.path.join(model_dir, "vocab.txt")
+  | tokenizer = bert.albert_tokenization.FullTokenizer(vocab_file=vocab_file)
+  | tokens = tokenizer.tokenize("你好世界")
+  | token_ids = tokenizer.convert_tokens_to_ids(tokens)
 
 Resources
 ---------
