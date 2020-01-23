@@ -21,7 +21,7 @@ common Keras boilerplate code (related to passing model and layer configuration 
 
 NEWS
 ----
- - **06.Jan.2019** - support for loading the tar format weights from `google-research/ALBERT`.
+ - **06.Jan.2020** - support for loading the tar format weights from `google-research/ALBERT`.
  - **18.Nov.2019** - ALBERT tokenization added (make sure to import as ``from bert import albert_tokenization`` or ``from bert import bert_tokenization``).
 
  - **08.Nov.2019** - using v2 per default when loading the `TFHub/albert`_ weights of `google-research/ALBERT`_.
