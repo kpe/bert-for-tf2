@@ -75,7 +75,7 @@ BERT in `bert-for-tf2` is implemented as a Keras layer. You could instantiate it
 
 .. code:: python
 
-  from bert import BertModelLayer
+  from bert.model import BertModelLayer
 
   l_bert = BertModelLayer(**BertModelLayer.Params(
     vocab_size               = 16000,        # embedding params
@@ -102,11 +102,13 @@ or by using the ``bert_config.json`` from a `pre-trained google model`_:
 .. code:: python
 
   import bert
+  from bert.model import BertModelLayer
+  from bert import loader
 
   model_dir = ".models/uncased_L-12_H-768_A-12"
 
-  bert_params = bert.params_from_pretrained_ckpt(model_dir)
-  l_bert = bert.BertModelLayer.from_params(bert_params, name="bert")
+  bert_params = loader.params_from_pretrained_ckpt(model_dir)
+  l_bert = BertModelLayer.from_params(bert_params, name="bert")
 
 
 now you can use the BERT layer in your Keras model like this:
@@ -141,10 +143,10 @@ can be loaded in the BERT layer:
 
 .. code:: python
 
-  import bert
+  from bert import loader
 
   bert_ckpt_file   = os.path.join(model_dir, "bert_model.ckpt")
-  bert.load_stock_weights(l_bert, bert_ckpt_file)
+  loader.load_stock_weights(l_bert, bert_ckpt_file)
 
 **N.B.** see `tests/test_bert_activations.py`_ for a complete example.
 
@@ -154,16 +156,19 @@ FAQ
 
 .. code:: python
 
+  from bert.model import BertModelLayer
+  from bert import loader
+
   model_name = "uncased_L-12_H-768_A-12"
-  model_dir = bert.fetch_google_bert_model(model_name, ".models")
+  model_dir = loader.fetch_google_bert_model(model_name, ".models")
   model_ckpt = os.path.join(model_dir, "bert_model.ckpt")
 
-  bert_params = bert.params_from_pretrained_ckpt(model_dir)
-  l_bert = bert.BertModelLayer.from_params(bert_params, name="bert")
+  bert_params = loader.params_from_pretrained_ckpt(model_dir)
+  l_bert = BertModelLayer.from_params(bert_params, name="bert")
 
   # use in Keras Model here, and call model.build()
 
-  bert.load_bert_weights(l_bert, model_ckpt)      # should be called after model.build()
+  loader.load_bert_weights(l_bert, model_ckpt)      # should be called after model.build()
 
 2. How to use ALBERT with the `google-research/ALBERT`_ pre-trained weights (fetching from TFHub)?
 
@@ -171,14 +176,17 @@ see `tests/nonci/test_load_pretrained_weights.py <https://github.com/kpe/bert-fo
 
 .. code:: python
 
+  from bert.model import BertModelLayer
+  from bert import loader_albert
+
   model_name = "albert_base"
-  model_dir    = bert.fetch_tfhub_albert_model(model_name, ".models")
-  model_params = bert.albert_params(model_name)
-  l_bert = bert.BertModelLayer.from_params(model_params, name="albert")
+  model_dir    = loader_albert.fetch_tfhub_albert_model(model_name, ".models")
+  model_params = loader_albert.albert_params(model_name)
+  l_bert = BertModelLayer.from_params(model_params, name="albert")
 
   # use in Keras Model here, and call model.build()
 
-  bert.load_albert_weights(l_bert, albert_dir)      # should be called after model.build()
+  loader_albert.load_albert_weights(l_bert, albert_dir)      # should be called after model.build()
 
 3. How to use ALBERT with the `google-research/ALBERT`_ pre-trained weights (non TFHub)?
 
@@ -186,16 +194,19 @@ see `tests/nonci/test_load_pretrained_weights.py <https://github.com/kpe/bert-fo
 
 .. code:: python
 
+  from bert.model import BertModelLayer
+  from bert import loader_albert
+
   model_name = "albert_base_v2"
-  model_dir    = bert.fetch_google_albert_model(model_name, ".models")
+  model_dir    = loader_albert.fetch_google_albert_model(model_name, ".models")
   model_ckpt   = os.path.join(albert_dir, "model.ckpt-best")
 
-  model_params = bert.albert_params(model_dir)
-  l_bert = bert.BertModelLayer.from_params(model_params, name="albert")
+  model_params = loader_albert.albert_params(model_dir)
+  l_bert = BertModelLayer.from_params(model_params, name="albert")
 
   # use in Keras Model here, and call model.build()
 
-  bert.load_albert_weights(l_bert, model_ckpt)      # should be called after model.build()
+  loader_albert.load_albert_weights(l_bert, model_ckpt)      # should be called after model.build()
 
 4. How to use ALBERT with the `brightmart/albert_zh`_ pre-trained weights?
 
@@ -203,25 +214,30 @@ see `tests/nonci/test_albert.py <https://github.com/kpe/bert-for-tf2/blob/master
 
 .. code:: python
 
+  from bert.model import BertModelLayer
+  from bert import loader_albert
+
   model_name = "albert_base"
-  model_dir = bert.fetch_brightmart_albert_model(model_name, ".models")
+  model_dir = loader_albert.fetch_brightmart_albert_model(model_name, ".models")
   model_ckpt = os.path.join(model_dir, "albert_model.ckpt")
 
-  bert_params = bert.params_from_pretrained_ckpt(model_dir)
-  l_bert = bert.BertModelLayer.from_params(bert_params, name="bert")
+  bert_params = loader_albert.params_from_pretrained_ckpt(model_dir)
+  l_bert = BertModelLayer.from_params(bert_params, name="bert")
 
   # use in a Keras Model here, and call model.build()
 
-  bert.load_albert_weights(l_bert, model_ckpt)      # should be called after model.build()
+  loader_albert.load_albert_weights(l_bert, model_ckpt)      # should be called after model.build()
 
 5. How to tokenize the input for the `google-research/bert`_ models?
 
 .. code:: python
 
+  from bert.tokenization import bert_tokenization
+
   do_lower_case = not (model_name.find("cased") == 0 or model_name.find("multi_cased") == 0)
-  bert.bert_tokenization.validate_case_matches_checkpoint(do_lower_case, model_ckpt)
+  bert_tokenization.validate_case_matches_checkpoint(do_lower_case, model_ckpt)
   vocab_file = os.path.join(model_dir, "vocab.txt")
-  tokenizer = bert.bert_tokenization.FullTokenizer(vocab_file, do_lower_case)
+  tokenizer = bert_tokenization.FullTokenizer(vocab_file, do_lower_case)
   tokens = tokenizer.tokenize("Hello, BERT-World!")
   token_ids = tokenizer.convert_tokens_to_ids(tokens)
 
@@ -230,12 +246,13 @@ see `tests/nonci/test_albert.py <https://github.com/kpe/bert-for-tf2/blob/master
 .. code:: python
 
   import params_flow pf
+  from bert.tokenization import albert_tokenization
 
   # fetch the vocab file
   albert_zh_vocab_url = "https://raw.githubusercontent.com/brightmart/albert_zh/master/albert_config/vocab.txt"
   vocab_file = pf.utils.fetch_url(albert_zh_vocab_url, model_dir)
 
-  tokenizer = bert.albert_tokenization.FullTokenizer(vocab_file)
+  tokenizer = albert_tokenization.FullTokenizer(vocab_file)
   tokens = tokenizer.tokenize("你好世界")
   token_ids = tokenizer.convert_tokens_to_ids(tokens)
 
@@ -244,23 +261,24 @@ see `tests/nonci/test_albert.py <https://github.com/kpe/bert-for-tf2/blob/master
 .. code:: python
 
   import sentencepiece as spm
+  from bert.tokenization import albert_tokenization
 
   spm_model = os.path.join(model_dir, "assets", "30k-clean.model")
   sp = spm.SentencePieceProcessor()
   sp.load(spm_model)
   do_lower_case = True
 
-  processed_text = bert.albert_tokenization.preprocess_text("Hello, World!", lower=do_lower_case)
-  token_ids = bert.albert_tokenization.encode_ids(sp, processed_text)
+  processed_text = albert_tokenization.preprocess_text("Hello, World!", lower=do_lower_case)
+  token_ids = albert_tokenization.encode_ids(sp, processed_text)
 
 8. How to tokenize the input for the Chinese `google-research/ALBERT`_ models?
 
 .. code:: python
 
-  import bert
+  from bert.tokenization import albert_tokenization 
 
   vocab_file = os.path.join(model_dir, "vocab.txt")
-  tokenizer = bert.albert_tokenization.FullTokenizer(vocab_file=vocab_file)
+  tokenizer = albert_tokenization.FullTokenizer(vocab_file=vocab_file)
   tokens = tokenizer.tokenize("你好世界")
   token_ids = tokenizer.convert_tokens_to_ids(tokens)
 
