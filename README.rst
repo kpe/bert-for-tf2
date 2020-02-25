@@ -261,7 +261,7 @@ see `tests/nonci/test_albert.py <https://github.com/kpe/bert-for-tf2/blob/master
 
   vocab_file = os.path.join(model_dir, "vocab.txt")
   tokenizer = bert.albert_tokenization.FullTokenizer(vocab_file=vocab_file)
-  tokens = tokenizer.tokenize("你好世界")
+  tokens = tokenizer.tokenize(u"你好世界")
   token_ids = tokenizer.convert_tokens_to_ids(tokens)
 
 Resources
