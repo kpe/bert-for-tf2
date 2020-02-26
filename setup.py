@@ -17,7 +17,7 @@ def _version():
 __version__ = _version()
 
 
-with open("README.rst", "r") as fh:
+with open("README.rst", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 with open("requirements.txt", "r") as reader:
