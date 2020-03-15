@@ -3,3 +3,4 @@
 
 py-params   >= 0.7.3
 params-flow >= 0.7.1
+sentencepiece >= 0.1.85
