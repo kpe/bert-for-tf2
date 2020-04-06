@@ -26,7 +26,6 @@ import unicodedata
 import six
 from six.moves import range
 import tensorflow.compat.v1 as tf
-import sentencepiece as spm
 
 SPIECE_UNDERLINE = u"▁".encode("utf-8")
 
@@ -237,6 +236,8 @@ class FullTokenizer(object):
         self.vocab = None
         self.sp_model = None
         if spm_model_file:
+            import sentencepiece as spm
+
             self.sp_model = spm.SentencePieceProcessor()
             tf.compat.v1.logging.info("loading sentence piece model")
             self.sp_model.Load(spm_model_file)
