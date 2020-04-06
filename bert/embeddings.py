@@ -20,7 +20,8 @@ class PositionEmbeddingLayer(bert.Layer):
         hidden_size              = 128
 
     # noinspection PyUnusedLocal
-    def _construct(self, params: Params):
+    def _construct(self, **kwargs):
+        super()._construct(**kwargs)
         self.embedding_table = None
 
     # noinspection PyAttributeOutsideInit
@@ -62,7 +63,8 @@ class EmbeddingsProjector(bert.Layer):
         project_embeddings_with_bias = True   # in ALBERT - True for Google, False for brightmart/albert_zh
 
     # noinspection PyUnusedLocal
-    def _construct(self, params: Params):
+    def _construct(self, **kwargs):
+        super()._construct(**kwargs)
         self.projector_layer      = None   # for ALBERT
         self.projector_bias_layer = None   # for ALBERT
 
@@ -116,7 +118,8 @@ class BertEmbeddingsLayer(bert.Layer):
         mask_zero                    = False
 
     # noinspection PyUnusedLocal
-    def _construct(self, params: Params):
+    def _construct(self, **kwargs):
+        super()._construct(**kwargs)
         self.word_embeddings_layer       = None
         self.extra_word_embeddings_layer = None   # for task specific tokens (negative token ids)
         self.token_type_embeddings_layer = None
@@ -125,7 +128,7 @@ class BertEmbeddingsLayer(bert.Layer):
         self.layer_norm_layer = None
         self.dropout_layer    = None
 
-        self.support_masking = params.mask_zero
+        self.support_masking = self.params.mask_zero
 
     # noinspection PyAttributeOutsideInit
     def build(self, input_shape):

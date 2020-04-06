@@ -21,6 +21,9 @@ common Keras boilerplate code (related to passing model and layer configuration 
 
 NEWS
 ----
+ - **06.Apr.2020** - using latest ``py-params`` introducing ``WithParams`` base for ``Layer``
+   and ``Model``. See news in `kpe/py-params`_ for how to update (``_construct()`` signature has change and
+   requires calling ``super().__construct()``).
  - **06.Jan.2020** - support for loading the tar format weights from `google-research/ALBERT`.
  - **18.Nov.2019** - ALBERT tokenization added (make sure to import as ``from bert import albert_tokenization`` or ``from bert import bert_tokenization``).
 

@@ -27,7 +27,8 @@ class BertModelLayer(Layer):
         pass
 
     # noinspection PyUnusedLocal
-    def _construct(self, params: Params):
+    def _construct(self, **kwargs):
+        super()._construct(**kwargs)
         self.embeddings_layer = None
         self.encoders_layer   = None
 

@@ -38,11 +38,11 @@ class AttentionLayer(Layer):
 
         return mask  # [B, F, T]
 
-    def _construct(self, params: Params):
-
-        self.query_activation = params.query_activation
-        self.key_activation   = params.key_activation
-        self.value_activation = params.value_activation
+    def _construct(self, **kwargs):
+        super()._construct(**kwargs)
+        self.query_activation = self.params.query_activation
+        self.key_activation   = self.params.key_activation
+        self.value_activation = self.params.value_activation
 
         self.query_layer = None
         self.key_layer   = None

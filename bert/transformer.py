@@ -23,7 +23,8 @@ class ProjectionLayer(Layer):
         adapter_activation = "gelu"
         adapter_init_scale = 1e-3
 
-    def _construct(self, params: Params):
+    def _construct(self, **kwargs):
+        super()._construct(**kwargs)
         self.dense      = None
         self.dropout    = None
         self.layer_norm = None
@@ -82,7 +83,9 @@ class TransformerSelfAttentionLayer(Layer):
         attention_dropout   = 0.1
         initializer_range   = 0.02
 
-    def _construct(self, params: Params):
+    def _construct(self, **kwargs):
+        super()._construct(**kwargs)
+        params = self.params
         if params.hidden_size % params.num_heads != 0:
             raise ValueError("The hidden_size:[{}] is not a multiple of num_heads:[{}]".format(params.hidden_size,
                                                                                                params.num_heads))
@@ -133,7 +136,9 @@ class SingleTransformerEncoderLayer(Layer):
         intermediate_size       = None
         intermediate_activation = "gelu"
 
-    def _construct(self, params: Params):
+    def _construct(self, **kwargs):
+        super()._construct(**kwargs)
+        params = self.params
         if params.hidden_size % params.num_heads != 0:
             raise ValueError("The hidden_size:[{}] is not a multiple of num_heads:[{}]".format(params.hidden_size,
                                                                                                params.num_heads))
@@ -194,7 +199,8 @@ class TransformerEncoderLayer(Layer):
 
         shared_layer   = False  # False for BERT, True for ALBERT
 
-    def _construct(self, params: Params):
+    def _construct(self, **kwargs):
+        super()._construct(**kwargs)
         self.encoder_layers   = []
         self.shared_layer     = None  # for ALBERT
         self.supports_masking = True

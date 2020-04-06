@@ -111,7 +111,7 @@ class AlbertTest(AbstractBertTest):
 
         # coverage
         model_params = dir_params
-        model_params.vocab_size = model_params.vocab_size + 2
+        model_params.vocab_size = model_params.vocab_size
         model_params.adapter_size = 1
         l_bert = bert.BertModelLayer.from_params(model_params, name="albert")
         l_bert(tf.zeros((1, 128)))
