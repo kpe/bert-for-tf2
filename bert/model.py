@@ -58,6 +58,16 @@ class BertModelLayer(Layer):
 
         super(BertModelLayer, self).build(input_shape)
 
+    def compute_output_shape(self, input_shape):
+        if isinstance(input_shape, list):
+            assert len(input_shape) == 2
+            input_ids_shape, _ = input_shape
+        else:
+            input_ids_shape = input_shape
+
+        output_shape = list(input_ids_shape) + [self.params.hidden_size]
+        return output_shape
+
     def apply_adapter_freeze(self):
         """ Should be called once the model has been built to freeze
         all bet the adapter and layer normalization layers in BERT.
