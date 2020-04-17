@@ -29,8 +29,15 @@ class BertModelLayer(Layer):
     # noinspection PyUnusedLocal
     def _construct(self, **kwargs):
         super()._construct(**kwargs)
-        self.embeddings_layer = None
-        self.encoders_layer   = None
+        self.embeddings_layer = BertEmbeddingsLayer.from_params(
+            self.params,
+            name="embeddings"
+        )
+        # create all transformer encoder sub-layers
+        self.encoders_layer = TransformerEncoderLayer.from_params(
+            self.params,
+            name="encoder"
+        )
 
         self.support_masking  = True
 
@@ -44,18 +51,6 @@ class BertModelLayer(Layer):
         else:
             input_ids_shape = input_shape
             self.input_spec = keras.layers.InputSpec(shape=input_ids_shape)
-
-        self.embeddings_layer = BertEmbeddingsLayer.from_params(
-            self.params,
-            name="embeddings"
-        )
-
-        # create all transformer encoder sub-layers
-        self.encoders_layer = TransformerEncoderLayer.from_params(
-            self.params,
-            name="encoder"
-        )
-
         super(BertModelLayer, self).build(input_shape)
 
     def compute_output_shape(self, input_shape):
