@@ -16,6 +16,9 @@ import params
 
 from bert.model import BertModelLayer
 
+_verbose = os.environ.get('VERBOSE', 1)  # verbose print per default
+trace = print if int(_verbose) else lambda *a, **k: None
+
 bert_models_google = {
     "uncased_L-12_H-768_A-12":      "https://storage.googleapis.com/bert_models/2018_10_18/uncased_L-12_H-768_A-12.zip",
     "uncased_L-24_H-1024_A-16":     "https://storage.googleapis.com/bert_models/2018_10_18/uncased_L-24_H-1024_A-16.zip",
@@ -216,7 +219,7 @@ def load_stock_weights(bert: BertModelLayer, ckpt_path, map_to_stock_fn=map_to_s
             ckpt_value = ckpt_reader.get_tensor(stock_name)
 
             if param_value.shape != ckpt_value.shape:
-                print("loader: Skipping weight:[{}] as the weight shape:[{}] is not compatible "
+                trace("loader: Skipping weight:[{}] as the weight shape:[{}] is not compatible "
                       "with the checkpoint:[{}] shape:{}".format(param.name, param.shape,
                                                                  stock_name, ckpt_value.shape))
                 skipped_weight_value_tuples.append((param, ckpt_value))
@@ -225,16 +228,16 @@ def load_stock_weights(bert: BertModelLayer, ckpt_path, map_to_stock_fn=map_to_s
             weight_value_tuples.append((param, ckpt_value))
             loaded_weights.add(stock_name)
         else:
-            print("loader: No value for:[{}], i.e.:[{}] in:[{}]".format(param.name, stock_name, ckpt_path))
+            trace("loader: No value for:[{}], i.e.:[{}] in:[{}]".format(param.name, stock_name, ckpt_path))
             skip_count += 1
     keras.backend.batch_set_value(weight_value_tuples)
 
-    print("Done loading {} BERT weights from: {} into {} (prefix:{}). "
+    trace("Done loading {} BERT weights from: {} into {} (prefix:{}). "
           "Count of weights not found in the checkpoint was: [{}]. "
           "Count of weights with mismatched shape: [{}]".format(
               len(weight_value_tuples), ckpt_path, bert, prefix, skip_count, len(skipped_weight_value_tuples)))
 
-    print("Unused weights from checkpoint:",
+    trace("Unused weights from checkpoint:",
           "\n\t" + "\n\t".join(sorted(stock_weights.difference(loaded_weights))))
 
     return skipped_weight_value_tuples  # (bert_weight, value_from_ckpt)
