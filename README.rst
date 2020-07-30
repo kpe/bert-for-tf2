@@ -21,7 +21,7 @@ common Keras boilerplate code (related to passing model and layer configuration 
 
 NEWS
 ----
- - **30.Jul.2020** - `VERBOSE` env variable for suppressing stdout output.
+ - **30.Jul.2020** - `VERBOSE=0` env variable for suppressing stdout output.
  - **06.Apr.2020** - using latest ``py-params`` introducing ``WithParams`` base for ``Layer``
    and ``Model``. See news in `kpe/py-params`_ for how to update (``_construct()`` signature has change and
    requires calling ``super().__construct()``).
