@@ -199,6 +199,9 @@ def load_stock_weights(bert: BertModelLayer, ckpt_path, map_to_stock_fn=map_to_s
     """
     assert isinstance(bert, BertModelLayer), "Expecting a BertModelLayer instance as first argument"
     assert _checkpoint_exists(ckpt_path), "Checkpoint does not exist: {}".format(ckpt_path)
+    assert len(bert.weights) > 0, "BertModelLayer weights have not been instantiated yet. " \
+                                  "Please add the layer in a Keras model and call model.build() first!"
+
     ckpt_reader = tf.train.load_checkpoint(ckpt_path)
 
     stock_weights = set(ckpt_reader.get_variable_to_dtype_map().keys())

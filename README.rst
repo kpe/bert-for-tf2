@@ -154,6 +154,25 @@ can be loaded in the BERT layer:
 
 FAQ
 ---
+0. In all the examlpes bellow, **please note** the line:
+
+.. code:: python
+
+  # use in a Keras Model here, and call model.build()
+
+for a quick test, you can replace it with something like:
+
+.. code:: python
+
+  model = keras.models.Sequential([
+    keras.layers.InputLayer(input_shape=(128,)),
+    l_bert,
+    keras.layers.Lambda(lambda x: x[:, 0, :]),
+    keras.layers.Dense(2)
+  ])
+  model.build(input_shape=(None, 128))
+
+
 1. How to use BERT with the `google-research/bert`_ pre-trained weights?
 
 .. code:: python
@@ -165,7 +184,7 @@ FAQ
   bert_params = bert.params_from_pretrained_ckpt(model_dir)
   l_bert = bert.BertModelLayer.from_params(bert_params, name="bert")
 
-  # use in Keras Model here, and call model.build()
+  # use in a Keras Model here, and call model.build()
 
   bert.load_bert_weights(l_bert, model_ckpt)      # should be called after model.build()
 
@@ -180,7 +199,7 @@ see `tests/nonci/test_load_pretrained_weights.py <https://github.com/kpe/bert-fo
   model_params = bert.albert_params(model_name)
   l_bert = bert.BertModelLayer.from_params(model_params, name="albert")
 
-  # use in Keras Model here, and call model.build()
+  # use in a Keras Model here, and call model.build()
 
   bert.load_albert_weights(l_bert, albert_dir)      # should be called after model.build()
 
@@ -197,7 +216,7 @@ see `tests/nonci/test_load_pretrained_weights.py <https://github.com/kpe/bert-fo
   model_params = bert.albert_params(model_dir)
   l_bert = bert.BertModelLayer.from_params(model_params, name="albert")
 
-  # use in Keras Model here, and call model.build()
+  # use in a Keras Model here, and call model.build()
 
   bert.load_albert_weights(l_bert, model_ckpt)      # should be called after model.build()
 
