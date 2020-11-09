@@ -244,7 +244,7 @@ def map_to_tfhub_albert_variable_name(name, prefix="bert"):
     name = "/".join(["bert"] + ns[len(pns):])
     ns   = name.split("/")
 
-    if ns[1] not in ["encoder", "embeddings"]:
+    if ns[1] not in ["encoder", "embeddings", "pooler"]:
         return None
     if ns[1] == "embeddings":
         if ns[2] == "LayerNorm":
@@ -256,6 +256,8 @@ def map_to_tfhub_albert_variable_name(name, prefix="bert"):
             return "/".join(ns[:4] + ["dense"] + ns[4:])
         else:
             return name
+    if ns[1] == "pooler":
+        return "/".join(ns)
     return None
 
 
