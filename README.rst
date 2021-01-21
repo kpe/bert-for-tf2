@@ -323,8 +323,8 @@ Resources
 .. _`google-research/ALBERT`: https://github.com/google-research/ALBERT
 .. _`TFHub/albert`: https://tfhub.dev/google/albert_base/2
 
-.. |Build Status| image:: https://travis-ci.org/kpe/bert-for-tf2.svg?branch=master
-   :target: https://travis-ci.org/kpe/bert-for-tf2
+.. |Build Status| image:: https://travis-ci.com/kpe/bert-for-tf2.svg?branch=master
+   :target: https://travis-ci.com/kpe/bert-for-tf2
 .. |Coverage Status| image:: https://coveralls.io/repos/kpe/bert-for-tf2/badge.svg?branch=master
    :target: https://coveralls.io/r/kpe/bert-for-tf2?branch=master
 .. |Version Status| image:: https://badge.fury.io/py/bert-for-tf2.svg
