@@ -11,7 +11,7 @@ import math
 import os
 
 import tensorflow as tf
-from tensorflow.python import keras
+from tensorflow import keras
 
 import bert
 

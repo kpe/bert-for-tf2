@@ -13,7 +13,7 @@ import tempfile
 import tensorflow as tf
 import numpy as np
 
-from tensorflow.python import keras
+from tensorflow import keras
 
 from bert import bert_tokenization
 
