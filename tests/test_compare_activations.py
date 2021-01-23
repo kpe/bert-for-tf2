@@ -57,7 +57,7 @@ class CompareBertActivationsTest(AbstractBertTest):
         return s_model, pl_input_ids, pl_token_type_ids, pl_mask
 
     @staticmethod
-    def predict_on_stock_model(model_dir, input_ids, input_mask, token_type_ids):
+    def predict_on_stock_model(model_dir, input_ids, input_mask, token_type_ids, return_pooler_output=False):
         max_seq_len = input_ids.shape[-1]
         (s_model,
          pl_input_ids, pl_token_type_ids, pl_mask) = CompareBertActivationsTest.load_stock_model(model_dir, max_seq_len)
@@ -65,16 +65,24 @@ class CompareBertActivationsTest(AbstractBertTest):
         with tf.compat.v1.Session() as sess:
             sess.run(tf.compat.v1.global_variables_initializer())
 
-            s_res = sess.run(
-                s_model.get_sequence_output(),
-                feed_dict={pl_input_ids:      input_ids,
-                           pl_token_type_ids: token_type_ids,
-                           pl_mask:           input_mask,
-                           })
+            if return_pooler_output:
+                s_res = sess.run(
+                    (s_model.get_sequence_output(), s_model.get_pooled_output()),
+                    feed_dict={pl_input_ids:      input_ids,
+                               pl_token_type_ids: token_type_ids,
+                               pl_mask:           input_mask,
+                               })
+            else:
+                s_res = sess.run(
+                    s_model.get_sequence_output(),
+                    feed_dict={pl_input_ids:      input_ids,
+                               pl_token_type_ids: token_type_ids,
+                               pl_mask:           input_mask,
+                               })
         return s_res
 
     @staticmethod
-    def load_keras_model(model_dir, max_seq_len):
+    def load_keras_model(model_dir, max_seq_len, return_pooler_output=False):
         from tensorflow.python import keras
         from bert import BertModelLayer
         from bert.loader import StockBertConfig, load_stock_weights, params_from_pretrained_ckpt
@@ -82,7 +90,9 @@ class CompareBertActivationsTest(AbstractBertTest):
         bert_config_file = os.path.join(model_dir, "bert_config.json")
         bert_ckpt_file   = os.path.join(model_dir, "bert_model.ckpt")
 
-        l_bert = BertModelLayer.from_params(params_from_pretrained_ckpt(model_dir))
+        model_params = params_from_pretrained_ckpt(model_dir)
+        model_params.return_pooler_output = return_pooler_output
+        l_bert = BertModelLayer.from_params(model_params)
 
         l_input_ids      = keras.layers.Input(shape=(max_seq_len,), dtype='int32', name="input_ids")
         l_token_type_ids = keras.layers.Input(shape=(max_seq_len,), dtype='int32', name="token_type_ids")
@@ -97,10 +107,10 @@ class CompareBertActivationsTest(AbstractBertTest):
         return model
 
     @staticmethod
-    def predict_on_keras_model(model_dir, input_ids, input_mask, token_type_ids):
+    def predict_on_keras_model(model_dir, input_ids, input_mask, token_type_ids, return_pooler_output=False):
         max_seq_len = input_ids.shape[-1]
 
-        model = CompareBertActivationsTest.load_keras_model(model_dir, max_seq_len)
+        model = CompareBertActivationsTest.load_keras_model(model_dir, max_seq_len, return_pooler_output=return_pooler_output)
 
         k_res = model.predict([input_ids, token_type_ids])
         return k_res
@@ -129,13 +139,18 @@ class CompareBertActivationsTest(AbstractBertTest):
         print("   tokens:", input_tokens)
         print("input_ids:{}/{}:{}".format(len(input_tokens), max_seq_len, input_ids), input_ids.shape, token_type_ids)
 
-        bert_1_seq_out = CompareBertActivationsTest.predict_on_stock_model(model_dir, input_ids, input_mask, token_type_ids)
-        bert_2_seq_out = CompareBertActivationsTest.predict_on_keras_model(model_dir, input_ids, input_mask, token_type_ids)
+        (bert_1_seq_out,
+         bert_1_pooled_out) = CompareBertActivationsTest.predict_on_stock_model(model_dir, input_ids, input_mask, token_type_ids, return_pooler_output=True)
+        (bert_2_seq_out,
+         bert_2_pooled_out) = CompareBertActivationsTest.predict_on_keras_model(model_dir, input_ids, input_mask, token_type_ids, return_pooler_output=True)
 
         np.set_printoptions(precision=9, threshold=20, linewidth=200, sign="+", floatmode="fixed")
 
-        print("stock bert res", bert_1_seq_out.shape)
-        print("keras bert res", bert_2_seq_out.shape)
+        print("stock bert seq res", bert_1_seq_out.shape)
+        print("keras bert seq res", bert_2_seq_out.shape)
+
+        print("stock bert pooled res", bert_1_pooled_out.shape)
+        print("keras bert pooled res", bert_2_pooled_out.shape)
 
         print("stock bert res:\n {}".format(bert_1_seq_out[0, :2, :10]), bert_1_seq_out.dtype)
         print("keras bert_res:\n {}".format(bert_2_seq_out[0, :2, :10]), bert_2_seq_out.dtype)
@@ -143,6 +158,7 @@ class CompareBertActivationsTest(AbstractBertTest):
         abs_diff = np.abs(bert_1_seq_out - bert_2_seq_out).flatten()
         print("abs diff:", np.max(abs_diff), np.argmax(abs_diff))
         self.assertTrue(np.allclose(bert_1_seq_out, bert_2_seq_out, atol=1e-6))
+        self.assertTrue(np.allclose(bert_1_pooled_out, bert_2_pooled_out, atol=1e-6))
 
     def test_finetune(self):
 
@@ -177,7 +193,7 @@ class CompareBertActivationsTest(AbstractBertTest):
         print("   tokens:", input_tokens)
         print("input_ids:{}/{}:{}".format(len(input_tokens), max_seq_len, input_ids), input_ids.shape, token_type_ids)
 
-        model = CompareBertActivationsTest.load_keras_model(model_dir, max_seq_len)
+        model = CompareBertActivationsTest.load_keras_model(model_dir, max_seq_len, return_pooler_output=False)
         model.compile(optimizer=keras.optimizers.Adam(),
                       loss=keras.losses.mean_squared_error)
 

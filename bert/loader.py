@@ -55,7 +55,7 @@ def map_from_stock_variale_name(name, prefix="bert"):
     name = "/".join(pns + ns[1:])
     ns = name.split("/")
 
-    if ns[1] not in ["encoder", "embeddings"]:
+    if ns[1] not in ["encoder", "embeddings", "pooler"]:
         return None
     if ns[1] == "embeddings":
         if ns[2] == "LayerNorm":
@@ -67,6 +67,8 @@ def map_from_stock_variale_name(name, prefix="bert"):
             return "/".join(ns[:4] + ns[5:])
         else:
             return name
+    if ns[1] == "pooler":
+        return "/".join(ns)
     return None
 
 
@@ -81,7 +83,7 @@ def map_to_stock_variable_name(name, prefix="bert"):
     name = "/".join(["bert"] + ns[len(pns):])
     ns   = name.split("/")
 
-    if ns[1] not in ["encoder", "embeddings"]:
+    if ns[1] not in ["encoder", "embeddings", "pooler"]:
         return None
     if ns[1] == "embeddings":
         if ns[2] == "LayerNorm":
@@ -99,6 +101,8 @@ def map_to_stock_variable_name(name, prefix="bert"):
             return "/".join(ns[:4] + ["dense"] + ns[4:])
         else:
             return name
+    if ns[1] == "pooler":
+        return "/".join(ns)
     return None
 
 
@@ -181,7 +185,7 @@ def _checkpoint_exists(ckpt_path):
 
 
 def bert_prefix(bert: BertModelLayer):
-    re_bert = re.compile(r'(.*)/(embeddings|encoder)/(.+):0')
+    re_bert = re.compile(r'(.*)/(embeddings|encoder|pooler)/(.+):0')
     match = re_bert.match(bert.weights[0].name)
     assert match, "Unexpected bert layer: {} weight:{}".format(bert, bert.weights[0].name)
     prefix = match.group(1)

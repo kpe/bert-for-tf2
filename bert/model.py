@@ -10,6 +10,7 @@ import params_flow as pf
 
 from bert.layer import Layer
 from bert.embeddings import BertEmbeddingsLayer
+from bert.pooler import BertPoolerLayer
 from bert.transformer import TransformerEncoderLayer
 
 
@@ -23,8 +24,9 @@ class BertModelLayer(Layer):
 
     """
     class Params(BertEmbeddingsLayer.Params,
-                 TransformerEncoderLayer.Params):
-        pass
+                 TransformerEncoderLayer.Params,
+                 BertPoolerLayer.Params):
+        return_pooler_output = False
 
     # noinspection PyUnusedLocal
     def _construct(self, **kwargs):
@@ -40,6 +42,11 @@ class BertModelLayer(Layer):
         )
 
         self.support_masking  = True
+
+        if self.params.return_pooler_output:
+            self.pooler_layer = BertPoolerLayer.from_params(
+                self.params,
+                name="pooler")
 
     # noinspection PyAttributeOutsideInit
     def build(self, input_shape):
@@ -61,7 +68,11 @@ class BertModelLayer(Layer):
             input_ids_shape = input_shape
 
         output_shape = list(input_ids_shape) + [self.params.hidden_size]
-        return output_shape
+        if self.params.return_pooler_output:
+            pooler_output_shape = [input_ids_shape[0], self.params.hidden_size]
+            return output_shape, pooler_output_shape
+        else:
+            return output_shape
 
     def apply_adapter_freeze(self):
         """ Should be called once the model has been built to freeze
@@ -77,6 +88,11 @@ class BertModelLayer(Layer):
             mask = self.embeddings_layer.compute_mask(inputs)
 
         embedding_output = self.embeddings_layer(inputs, mask=mask, training=training)
-        output           = self.encoders_layer(embedding_output, mask=mask, training=training)
-        return output   # [B, seq_len, hidden_size]
+        encoder_output   = self.encoders_layer(embedding_output, mask=mask, training=training)
+
+        if self.params.return_pooler_output:
+            pooler_output = self.pooler_layer(encoder_output, mask=mask, training=training)
+            return encoder_output, pooler_output
+        else:
+            return encoder_output   # [B, seq_len, hidden_size]
 

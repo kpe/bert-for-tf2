@@ -38,7 +38,7 @@ class TestAdapterFineTuning(AbstractBertTest):
 
     def test_coverage_improve(self):
         bert_params = bert.params_from_pretrained_ckpt(self.ckpt_dir)
-        model, l_bert = self.build_model(bert_params, 1)
+        model, l_bert = self.build_model(bert_params, 1, return_pooler_output=True)
         for weight in model.weights:
             l_bert_prefix = bert.loader.bert_prefix(l_bert)
 
@@ -52,15 +52,22 @@ class TestAdapterFineTuning(AbstractBertTest):
             self.assertEqual(weight.name.split(":")[0], keras_name)
 
     @staticmethod
-    def build_model(bert_params, max_seq_len):
+    def build_model(bert_params, max_seq_len, return_pooler_output=False):
         # enable adapter-BERT
         bert_params.adapter_size = 2
+        bert_params.return_pooler_output = return_pooler_output
         l_bert = bert.BertModelLayer.from_params(bert_params)
-        model = keras.models.Sequential([
-            l_bert,
-            keras.layers.Lambda(lambda seq: seq[:, 0, :]),
-            keras.layers.Dense(3, name="test_cls")
-        ])
+        if return_pooler_output:
+            inp = keras.Input(shape=(max_seq_len,))
+            _, pooled_out = l_bert(inp)
+            out = keras.layers.Dense(3, name="test_cls")(pooled_out)
+            model = keras.Model(inputs=[inp], outputs=out)
+        else:
+            model = keras.models.Sequential([
+                l_bert,
+                keras.layers.Lambda(lambda seq: seq[:, 0, :]),
+                keras.layers.Dense(3, name="test_cls")
+            ])
         model.compile(optimizer=keras.optimizers.Adam(),
                       loss=keras.losses.SparseCategoricalCrossentropy(),
                       metrics=[keras.metrics.SparseCategoricalAccuracy()])
