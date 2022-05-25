@@ -6,8 +6,8 @@
 from __future__ import absolute_import, division, print_function
 
 import tensorflow as tf
-from tensorflow.python import keras
-from tensorflow.python.keras import backend as K
+from tensorflow import keras
+from tensorflow.keras import backend as K
 
 from bert.layer import Layer
 

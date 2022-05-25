@@ -6,7 +6,7 @@
 from __future__ import absolute_import, division, print_function
 
 import tensorflow as tf
-from tensorflow.python import keras
+from tensorflow import keras
 
 from params_flow import LayerNormalization
 
