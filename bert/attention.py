@@ -106,11 +106,11 @@ class AttentionLayer(Layer):
         key   = self.key_layer(to_tensor)      # [B,T, N*H]
         value = self.value_layer(to_tensor)    # [B,T, N*H]
 
-        query = transpose_for_scores(query, from_seq_len)           # [B, N, F, H]
-        key   = transpose_for_scores(key,   to_seq_len)             # [B, N, T, H]
+        query = transpose_for_scores(query, from_seq_len)           # [B,F, N*H] =>[B,F, N,H]=> [B, N, F, H]
+        key   = transpose_for_scores(key,   to_seq_len)             # [B,T, N*H] => [B, T, N, H]=> [B, N, T, H]
 
-        attention_scores = tf.matmul(query, key, transpose_b=True)  # [B, N, F, T]
-        attention_scores = attention_scores / tf.sqrt(float(self.params.size_per_head))
+        attention_scores = tf.matmul(query, key, transpose_b=True)  #  [B, N, F, H]* [B, N, T, H]（transpose_b） = [B, N, F, H]* [B, N, H, T] = [B, N, F, T]
+        attention_scores = attention_scores / tf.sqrt(float(self.params.size_per_head)) # 缩放
 
         if attention_mask is not None:
             attention_mask = tf.expand_dims(attention_mask, axis=1)  # [B, 1, F, T]
@@ -127,17 +127,19 @@ class AttentionLayer(Layer):
                                              training=training)    # [B, N, F, T]
 
         # [B,T,N,H]
+        # 下边这两行其实就是transpose_for_scores 的功能
         value = tf.reshape(value, [batch_size, to_seq_len,
-                                   self.params.num_heads, self.params.size_per_head])
-        value = tf.transpose(a=value, perm=[0, 2, 1, 3])                                # [B, N, T, H]
+                                   self.params.num_heads, self.params.size_per_head])  # [B,T, N*H] => [B, T, N, H]
+        value = tf.transpose(a=value, perm=[0, 2, 1, 3])                                # [B, T, N, H] => [B, N, T, H]
 
-        context_layer = tf.matmul(attention_probs, value)                               # [B, N, F, H]
-        context_layer = tf.transpose(a=context_layer, perm=[0, 2, 1, 3])                # [B, F, N, H]
+        context_layer = tf.matmul(attention_probs, value)                               # [B, N, F, T] * [B, N, T, H] => [B, N, F, H]
+        context_layer = tf.transpose(a=context_layer, perm=[0, 2, 1, 3])                # [B, N, F, H] => [B, F, N, H]
 
         output_shape = [batch_size, from_seq_len,
                         self.params.num_heads * self.params.size_per_head]
         context_layer = tf.reshape(context_layer, output_shape)
-        return context_layer                                                            # [B, F, N*H]
+        return context_layer                                                            # [B, F, N, H] => [B, F, N*H]也就是[batch_size, from_seq_len, N*H] 和query的初始shape一样了
+
 
     # noinspection PyUnusedLocal
     def compute_mask(self, inputs, mask=None):
